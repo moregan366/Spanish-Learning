@@ -1,1 +1,5 @@
+# Common Mistakes
+
+- ❌ 
+- ✅ 
 
