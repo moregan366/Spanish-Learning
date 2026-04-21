@@ -9,7 +9,7 @@ CORS(app)
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_db():
-    return psycopg2.connect(DATABASE_URL)
+    return psycopg2.connect(DATABASE_URL, sslmode='require')
 
 @app.route("/")
 def home():
