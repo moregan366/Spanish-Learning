@@ -44,7 +44,7 @@ def get_cards():
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("SELECT id, front, back FROM \"Flashcards\"")
+    cur.execute('SELECT id, "Spanish", "English" FROM "Flashcards"')
     rows = cur.fetchall()
 
     cur.close()
@@ -54,7 +54,7 @@ def get_cards():
     for row in rows:
         cards.append({
             "id": row[0],
-            "front": row[1],
+            "front": row[1],   # still map to front for API consistency
             "back": row[2]
         })
 
