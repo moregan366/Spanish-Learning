@@ -43,10 +43,16 @@ def home():
 
                     data.forEach(card => {
                         const li = document.createElement('li');
-                        li.textContent = card.front + " - " + card.back;
+
+                        li.innerHTML = `
+                            ${card.front} - ${card.back}
+                            <button onclick="deleteCard(${card.id})">Delete</button>
+        `                ;
+
                         list.appendChild(li);
                     });
                 }
+
 
                 async function addCard() {
                     const button = document.querySelector("button");
@@ -70,6 +76,18 @@ def home():
 
                     button.disabled = false;
 }
+
+
+                async function deleteCard(id) {
+                    if (!confirm("Delete this card?")) return;
+
+                    await fetch(`/delete/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    loadCards();
+}
+
 
 
                 loadCards();
@@ -128,6 +146,22 @@ def get_cards():
         })
 
     return jsonify(cards)
+
+# ------------------------
+# Delete card
+# ------------------------
+@app.route("/delete/<int:card_id>", methods=["DELETE"])
+def delete_card(card_id):
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute('DELETE FROM "Flashcards" WHERE id = %s', (card_id,))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({"message": "Card deleted"})
 
 # ------------------------
 # Run app
