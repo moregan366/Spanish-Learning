@@ -49,6 +49,9 @@ def home():
                 }
 
                 async function addCard() {
+                    const button = document.querySelector("button");
+                    button.disabled = true;
+
                     const front = document.getElementById('front').value;
                     const back = document.getElementById('back').value;
 
@@ -60,8 +63,14 @@ def home():
                         body: JSON.stringify({ front, back })
                     });
 
-                    loadCards();
-                }
+                    document.getElementById('front').value = "";
+                    document.getElementById('back').value = "";
+
+                    await loadCards();
+
+                    button.disabled = false;
+}
+
 
                 loadCards();
             </script>
