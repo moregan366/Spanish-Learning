@@ -43,12 +43,21 @@ def add_flashcard():
 def get_cards():
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("SELECT id, front, back FROM flashcards")
+
+    cur.execute("SELECT id, front, back FROM \"Flashcards\"")
     rows = cur.fetchall()
+
     cur.close()
     conn.close()
 
-    cards = [{"id": r[0], "front": r[1], "back": r[2]} for r in rows]
+    cards = []
+    for row in rows:
+        cards.append({
+            "id": row[0],
+            "front": row[1],
+            "back": row[2]
+        })
+
     return jsonify(cards)
 
 if __name__ == "__main__":
