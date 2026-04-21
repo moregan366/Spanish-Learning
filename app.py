@@ -17,16 +17,22 @@ def home():
 
 @app.route("/add", methods=["POST"])
 def add_flashcard():
-    data = request.get_json
+    data = request.get_json()
+
+    if not data:
+        return {"error": "No JSON received"}, 400
+
     front = data.get("front")
     back = data.get("back")
 
     conn = get_db()
     cur = conn.cursor()
+
     cur.execute(
         'INSERT INTO "Flashcards" ("Spanish", "English") VALUES (%s, %s)',
         (front, back)
     )
+
     conn.commit()
     cur.close()
     conn.close()
