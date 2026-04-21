@@ -24,7 +24,7 @@ def add_flashcard():
     conn = get_db()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO flashcards (front, back) VALUES (%s, %s)",
+        'INSERT INTO "Flashcards" ("Spanish", "English") VALUES (%s, %s)',
         (front, back)
     )
     conn.commit()
