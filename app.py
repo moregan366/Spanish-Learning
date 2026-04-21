@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import os
 import psycopg2
 
 app = Flask(__name__)
+CORS(app)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -15,7 +17,7 @@ def home():
 
 @app.route("/add", methods=["POST"])
 def add_flashcard():
-    data = request.json
+    data = request.get_json
     front = data.get("front")
     back = data.get("back")
 
