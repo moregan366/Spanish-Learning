@@ -4,7 +4,7 @@ from flask_cors import CORS
 import os
 import psycopg2
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="Templates")
 CORS(app)
 
 # Get database URL from Render environment
@@ -19,7 +19,7 @@ def get_db():
 
 @app.route("/")
 def home():
-    return render_template("Index.html")
+    return render_template("index.html")
 
 # ------------------------
 # Add flashcard
