@@ -1,1 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spanish Learning</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            height: 100vh;
+            background: #1e293b;
+            color: white;
+            padding: 20px;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 30px;
+        }
+
+        .menu-item {
+            margin: 15px 0;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            color: #38bdf8;
+        }
+
+        /* Main content */
+        .content {
+            flex: 1;
+            padding: 30px;
+            background: #f1f5f9;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            padding: 8px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 8px 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        li {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>🇪🇸 Spanish</h2>
+
+        <div class="menu-item" onclick="showSection('flashcards')">
+            Flashcards
+        </div>
+
+        <div class="menu-item" onclick="showSection('quiz')">
+            Quiz
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+
+        <!-- Flashcards Section -->
+        <div id="flashcards-section">
+
+            <div class="card">
+                <h2>Add Flashcard</h2>
+
+                <input id="front" placeholder="Spanish">
+                <input id="back" placeholder="English">
+
+                <button onclick="addCard()">Add</button>
+            </div>
+
+            <div class="card">
+                <h2>Cards</h2>
+                <ul id="card-list"></ul>
+            </div>
+
+        </div>
+
+        <!-- Quiz Section -->
+        <div id="quiz-section" style="display:none;">
+            <div class="card">
+                <h2>Quiz coming soon 🚀</h2>
+                <p>This will test your listening and writing.</p>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+
+function showSection(section) {
+    document.getElementById('flashcards-section').style.display = 'none';
+    document.getElementById('quiz-section').style.display = 'none';
+
+    document.getElementById(section + '-section').style.display = 'block';
+}
+
+async function loadCards() {
+    const res = await fetch('/cards');
+    const data = await res.json();
+
+    const list = document.getElementById('card-list');
+    list.innerHTML = '';
+
+    data.forEach(card => {
+        const li = document.createElement('li');
+
+        li.innerHTML = `
+            ${card.front} - ${card.back}
+            <button onclick="deleteCard(${card.id})">Delete</button>
+        `;
+
+        list.appendChild(li);
+    });
+}
+
+async function addCard() {
+    const front = document.getElementById('front').value;
+    const back = document.getElementById('back').value;
+
+    await fetch('/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ front, back })
+    });
+
+    loadCards();
+}
+
+async function deleteCard(id) {
+    await fetch(`/delete/${id}`, {
+        method: 'DELETE'
+    });
+
+    loadCards();
+}
+
+loadCards();
+
+</script>
+
+</body>
+</html>
 
