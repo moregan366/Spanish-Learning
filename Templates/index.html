@@ -7,8 +7,8 @@
 <style>
     body {
         margin: 0;
-        font-family: 'Segoe UI', sans-serif;
-        background: linear-gradient(135deg, #eef2ff, #f8fafc);
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
     }
 
     .container {
@@ -16,142 +16,146 @@
         height: 100vh;
     }
 
-    /* Sidebar */
+    /* SIDEBAR */
     .sidebar {
-        width: 240px;
-        background: linear-gradient(180deg, #1e293b, #0f172a);
+        width: 260px;
+        background: linear-gradient(180deg, #0f172a, #020617);
         color: white;
-        padding: 25px;
+        padding: 30px 20px;
         display: flex;
         flex-direction: column;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.2);
     }
 
     .logo {
         display: flex;
         align-items: center;
-        font-size: 20px;
+        gap: 10px;
+        font-size: 22px;
         font-weight: bold;
         margin-bottom: 40px;
     }
 
-    .logo span {
-        font-size: 24px;
-        margin-right: 10px;
+    .logo img {
+        width: 28px;
     }
 
-    .sidebar a {
+    .nav a {
+        display: block;
+        padding: 12px;
+        border-radius: 10px;
         color: #cbd5e1;
         text-decoration: none;
-        margin: 12px 0;
-        padding: 10px;
-        border-radius: 8px;
-        transition: 0.3s;
+        margin-bottom: 10px;
+        transition: 0.25s;
     }
 
-    .sidebar a:hover {
-        background: #334155;
+    .nav a:hover {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
         color: white;
-        transform: translateX(5px);
+        transform: translateX(6px);
     }
 
-    /* Main */
+    /* MAIN */
     .main {
         flex: 1;
-        padding: 40px;
+        padding: 50px;
     }
 
     h1 {
-        margin-top: 0;
-        font-size: 28px;
+        font-size: 34px;
+        margin-bottom: 30px;
+        color: #0f172a;
     }
 
-    /* Card UI */
-    .card {
+    /* ADD CARD BOX */
+    .add-box {
         background: white;
         padding: 25px;
-        border-radius: 14px;
-        margin-bottom: 25px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        animation: fadeIn 0.5s ease;
+        border-radius: 16px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
     }
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(15px); }
-        to { opacity: 1; transform: translateY(0); }
+    .inputs {
+        display: flex;
+        gap: 10px;
     }
 
-    /* Inputs */
     input {
-        padding: 12px;
-        margin-right: 10px;
-        border-radius: 8px;
+        flex: 1;
+        padding: 14px;
+        border-radius: 10px;
         border: 1px solid #ddd;
-        width: 200px;
         transition: 0.2s;
     }
 
     input:focus {
-        outline: none;
         border-color: #6366f1;
         box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
-    }
-
-    /* Buttons */
-    button {
-        padding: 12px 18px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.2s;
+        outline: none;
     }
 
     .add-btn {
         background: linear-gradient(135deg, #6366f1, #4f46e5);
         color: white;
+        border: none;
+        padding: 14px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
     }
 
     .add-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(99,102,241,0.4);
+        box-shadow: 0 10px 20px rgba(99,102,241,0.4);
+    }
+
+    /* CARD LIST */
+    .card-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .flashcard {
+        background: white;
+        padding: 20px;
+        border-radius: 14px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        transition: 0.3s;
+        position: relative;
+    }
+
+    .flashcard:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    .text {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    .text b {
+        color: #111827;
     }
 
     .delete-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
         background: #ef4444;
         color: white;
+        border: none;
+        padding: 6px 10px;
+        border-radius: 6px;
+        cursor: pointer;
     }
 
     .delete-btn:hover {
         background: #dc2626;
-        transform: scale(1.05);
-    }
-
-    /* Flashcards */
-    .flashcard {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: #f9fafb;
-        padding: 14px 18px;
-        border-radius: 10px;
-        margin-bottom: 12px;
-        transition: 0.3s;
-        animation: slideIn 0.4s ease;
-    }
-
-    @keyframes slideIn {
-        from { opacity: 0; transform: translateX(-10px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-
-    .flashcard:hover {
-        background: #eef2ff;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    }
-
-    .text b {
-        color: #1e293b;
     }
 
 </style>
@@ -165,33 +169,31 @@
 <!-- Sidebar -->
 <div class="sidebar">
     <div class="logo">
-        <span>🇪🇸</span> Spanish
+        <img src="https://flagcdn.com/w40/es.png">
+        Spanish
     </div>
 
-    <a href="#">Flashcards</a>
-    <a href="#">Quiz</a>
+    <div class="nav">
+        <a href="#">Flashcards</a>
+        <a href="#">Quiz</a>
+    </div>
 </div>
 
 <!-- Main -->
 <div class="main">
-
     <h1>Flashcards</h1>
 
-    <!-- Add -->
-    <div class="card">
+    <div class="add-box">
         <h3>Add Flashcard</h3>
 
-        <input id="front" placeholder="Spanish">
-        <input id="back" placeholder="English">
-        <button class="add-btn" onclick="addCard()">Add</button>
+        <div class="inputs">
+            <input id="front" placeholder="Spanish">
+            <input id="back" placeholder="English">
+            <button class="add-btn" onclick="addCard()">Add</button>
+        </div>
     </div>
 
-    <!-- Cards -->
-    <div class="card">
-        <h3>Your Cards</h3>
-        <div id="cards"></div>
-    </div>
-
+    <div class="card-list" id="cards"></div>
 </div>
 
 </div>
@@ -209,10 +211,11 @@ async function loadCards() {
         div.className = 'flashcard';
 
         div.innerHTML = `
-            <div class="text">
-                <b>${card.front}</b> - ${card.back}
-            </div>
             <button class="delete-btn" onclick="deleteCard(${card.id})">Delete</button>
+            <div class="text">
+                <b>${card.front}</b><br>
+                ${card.back}
+            </div>
         `;
 
         container.appendChild(div);
