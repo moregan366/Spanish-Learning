@@ -1,99 +1,178 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Quiz</title>
-    <style>
-        body {
-            font-family: Arial;
-            display: flex;
-        }
+<title>Quiz</title>
 
-        .main {
-            margin-left: 220px;
-            padding: 30px;
-            width: 100%;
-        }
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #f5f7fb;
+    display: flex;
+}
 
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            max-width: 500px;
-        }
+/* MAIN */
+.main {
+    margin-left: 220px;
+    padding: 40px;
+    width: 100%;
+}
 
-        button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
+/* HEADER */
+h1 {
+    margin-bottom: 20px;
+}
 
-        .primary {
-            background: #6366f1;
-            color: white;
-        }
+/* SETTINGS BAR */
+.settings {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
 
-        .correct { color: green; }
-        .wrong { color: red; }
+/* FLASHCARD */
+.card-container {
+    perspective: 1000px;
+    display: flex;
+    justify-content: center;
+}
 
-    </style>
+.flashcard {
+    width: 400px;
+    height: 220px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+    cursor: pointer;
+}
+
+.flashcard.flip {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    backface-visibility: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+/* FRONT */
+.front {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+}
+
+/* BACK */
+.back {
+    background: white;
+    color: #333;
+    transform: rotateY(180deg);
+}
+
+/* INPUT */
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+/* BUTTONS */
+.buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.primary {
+    background: linear-gradient(135deg, #f97316, #ec4899);
+    color: white;
+}
+
+.secondary {
+    background: #e5e7eb;
+}
+
+/* RESULT */
+.result {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.correct { color: green; }
+.wrong { color: red; }
+
+</style>
 </head>
 
 <body>
 
 <div class="main">
-    <h1>Quiz</h1>
 
-    <div class="card">
+<h1>Quiz</h1>
 
-        <!-- SETTINGS -->
-        <div>
-            <label>
-                Direction:
-                <select id="mode">
-                    <option value="es-en">Spanish → English</option>
-                    <option value="en-es">English → Spanish</option>
-                </select>
-            </label>
+<!-- SETTINGS -->
+<div class="settings">
+    Direction:
+    <select id="mode">
+        <option value="es-en">Spanish → English</option>
+        <option value="en-es">English → Spanish</option>
+    </select>
 
-            <br><br>
+    &nbsp;&nbsp;
 
-            <label>
-                Mode:
-                <select id="typeMode">
-                    <option value="input">Type Answer</option>
-                    <option value="show">Show Answer</option>
-                </select>
-            </label>
-        </div>
+    Mode:
+    <select id="typeMode">
+        <option value="input">Type Answer</option>
+        <option value="show">Show Answer</option>
+    </select>
+</div>
 
-        <hr>
-
-        <!-- QUESTION -->
-        <h2 id="question">Loading...</h2>
-
-        <!-- INPUT -->
-        <input id="answer" placeholder="Type answer">
-
-        <br>
-
-        <button class="primary" onclick="checkAnswer()">Submit</button>
-        <button onclick="showAnswer()">Show Answer</button>
-        <button onclick="nextCard()">Next</button>
-        <button onclick="speak()">🔊</button>
-
-        <p id="result"></p>
-
+<!-- FLASHCARD -->
+<div class="card-container">
+    <div class="flashcard" id="card" onclick="flipCard()">
+        <div class="card-face front" id="front"></div>
+        <div class="card-face back" id="back"></div>
     </div>
+</div>
+
+<!-- INPUT -->
+<input id="answer" placeholder="Type your answer">
+
+<!-- BUTTONS -->
+<div class="buttons">
+    <button class="primary" onclick="checkAnswer()">Submit</button>
+    <button class="secondary" onclick="flipCard()">Flip</button>
+    <button class="secondary" onclick="nextCard()">Next</button>
+    <button class="secondary" onclick="speak()">🔊</button>
+</div>
+
+<p class="result" id="result"></p>
+
 </div>
 
 <script>
 let cards = [];
 let current = null;
 
-// Load cards
 async function loadCards() {
     const res = await fetch('/cards');
     cards = await res.json();
@@ -102,13 +181,22 @@ async function loadCards() {
 
 function nextCard() {
     current = cards[Math.floor(Math.random() * cards.length)];
+
+    document.getElementById("card").classList.remove("flip");
     document.getElementById("result").innerText = "";
     document.getElementById("answer").value = "";
 
     const mode = document.getElementById("mode").value;
 
-    document.getElementById("question").innerText =
+    document.getElementById("front").innerText =
         mode === "es-en" ? current.front : current.back;
+
+    document.getElementById("back").innerText =
+        mode === "es-en" ? current.back : current.front;
+}
+
+function flipCard() {
+    document.getElementById("card").classList.toggle("flip");
 }
 
 function checkAnswer() {
@@ -120,21 +208,12 @@ function checkAnswer() {
         : current.front.toLowerCase();
 
     if (user === correct) {
-        document.getElementById("result").innerHTML = "<span class='correct'>Correct!</span>";
+        document.getElementById("result").innerHTML =
+            "<span class='correct'>Correct!</span>";
     } else {
         document.getElementById("result").innerHTML =
             "<span class='wrong'>Wrong. Answer: " + correct + "</span>";
     }
-}
-
-function showAnswer() {
-    const mode = document.getElementById("mode").value;
-
-    const answer = mode === "es-en"
-        ? current.back
-        : current.front;
-
-    document.getElementById("result").innerText = answer;
 }
 
 function speak() {
@@ -145,8 +224,6 @@ function speak() {
         : current.back;
 
     const utterance = new SpeechSynthesisUtterance(text);
-
-    // Basic Spanish voice
     utterance.lang = "es-ES";
 
     speechSynthesis.speak(utterance);
