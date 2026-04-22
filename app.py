@@ -1,5 +1,6 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
+
 import os
 import psycopg2
 
@@ -15,86 +16,10 @@ def get_db():
 # ------------------------
 # Home page (UI)
 # ------------------------
+
 @app.route("/")
 def home():
-    return """
-    <html>
-        <head>
-            <title>Spanish Learning</title>
-        </head>
-        <body>
-            <h1>Spanish Flashcards</h1>
-
-            <h2>Add a new card</h2>
-            <input id="front" placeholder="Spanish">
-            <input id="back" placeholder="English">
-            <button onclick="addCard()">Add</button>
-
-            <h2>Cards</h2>
-            <ul id="cards"></ul>
-
-            <script>
-                async function loadCards() {
-                    const res = await fetch('/cards');
-                    const data = await res.json();
-
-                    const list = document.getElementById('cards');
-                    list.innerHTML = '';
-
-                    data.forEach(card => {
-                        const li = document.createElement('li');
-
-                        li.innerHTML = `
-                            ${card.front} - ${card.back}
-                            <button onclick="deleteCard(${card.id})">Delete</button>
-        `                ;
-
-                        list.appendChild(li);
-                    });
-                }
-
-
-                async function addCard() {
-                    const button = document.querySelector("button");
-                    button.disabled = true;
-
-                    const front = document.getElementById('front').value;
-                    const back = document.getElementById('back').value;
-
-                    await fetch('/add', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ front, back })
-                    });
-
-                    document.getElementById('front').value = "";
-                    document.getElementById('back').value = "";
-
-                    await loadCards();
-
-                    button.disabled = false;
-}
-
-
-                async function deleteCard(id) {
-                    if (!confirm("Delete this card?")) return;
-
-                    await fetch(`/delete/${id}`, {
-                        method: 'DELETE'
-                    });
-
-                    loadCards();
-}
-
-
-
-                loadCards();
-            </script>
-        </body>
-    </html>
-    """
+    return render_template("index.html")
 
 # ------------------------
 # Add flashcard
