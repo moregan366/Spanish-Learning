@@ -89,6 +89,13 @@ def delete_card(id):
     return jsonify({"message": "Card deleted"})
 
 # ------------------------
+# Delete card
+# ------------------------
+@app.route("/quiz")
+def quiz():
+    return render_template("quiz.html")
+
+# ------------------------
 # Run app
 # ------------------------
 if __name__ == "__main__":
