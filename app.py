@@ -59,30 +59,30 @@ def get_cards():
     cur.execute('SELECT id, "Spanish", "English" FROM "Flashcards"')
     rows = cur.fetchall()
 
-    cur.close()
-    conn.close()
-
     cards = []
     for row in rows:
         cards.append({
             "id": row[0],
-            "front": row[1],   # Spanish
-            "back": row[2]     # English
+            "front": row[1],
+            "back": row[2]
         })
+
+    cur.close()
+    conn.close()
 
     return jsonify(cards)
 
 # ------------------------
 # Delete card
 # ------------------------
-@app.route("/delete/<int:card_id>", methods=["DELETE"])
-def delete_card(card_id):
+@app.route("/delete/<int:id>", methods=["DELETE"])
+def delete_card(id):
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute('DELETE FROM "Flashcards" WHERE id = %s', (card_id,))
-
+    cur.execute('DELETE FROM "Flashcards" WHERE id = %s', (id,))
     conn.commit()
+
     cur.close()
     conn.close()
 
