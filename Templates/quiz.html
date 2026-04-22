@@ -4,6 +4,45 @@
 <title>Quiz</title>
 
 <style>
+    
+    .sidebar {
+    width: 220px;
+    height: 100vh;
+    background: linear-gradient(180deg, #111827, #1f2937);
+    color: white;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 20px;
+    }
+
+    .logo {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    }
+
+    .logo img {
+    width: 30px;
+    }
+
+    .nav a {
+    display: block;
+    color: #9ca3af;
+    text-decoration: none;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 8px;
+    }
+
+    .nav a:hover, .nav a.active {
+    background: #374151;
+    color: white;
+    }
+
 body {
     margin: 0;
     font-family: Arial;
@@ -11,9 +50,21 @@ body {
     display: flex;
 }
 
+<div class="sidebar">
+    <div class="logo">
+        <img src="https://flagcdn.com/w40/es.png">
+        Spanish
+    <div>
+
+    <div class="nav">
+        <a href="/">Flashcards</a>
+        <a href="/quiz" class="active">Quiz</a>
+    <div>
+<div>
+    
 /* MAIN */
 .main {
-    margin-left: 220px;
+    margin-left: 240px;
     padding: 40px;
     width: 100%;
 }
