@@ -158,6 +158,55 @@
         background: #dc2626;
     }
 
+<style>
+
+.delete-btn:hover {
+    background: #dc2626;
+}
+
+.hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #f97316, #ec4899, #8b5cf6);
+    color: white;
+    padding: 30px;
+    border-radius: 18px;
+    margin-bottom: 30px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+}
+
+.hero-text {
+    max-width: 60%;
+}
+
+.hero-text h2 {
+    margin: 0 0 10px 0;
+    font-size: 26px;
+}
+
+.hero-text p {
+    margin-bottom: 15px;
+}
+
+.hero-btn {
+    background: white;
+    color: #8b5cf6;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.hero-btn:hover {
+    transform: translateY(-2px);
+}
+
+.hero-img img {
+    width: 120px;
+}
+
 </style>
 
 </head>
@@ -182,6 +231,18 @@
 <!-- Main -->
 <div class="main">
     <h1>Flashcards</h1>
+
+    <div class="hero">
+    <div class="hero-text">
+        <h2>¡Bienvenido a tu aprendizaje de español!</h2>
+        <p>Aprende, practica y mejora tu español cada día. Tú puedes lograrlo 💪</p>
+        <button class="hero-btn">Ir a Flashcards</button>
+    </div>
+
+    <div class="hero-img">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+    </div>
+</div>
 
     <div class="add-box">
         <h3>Add Flashcard</h3>
