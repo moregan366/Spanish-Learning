@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz</title>
+    <style>
+        body {
+            font-family: Arial;
+            display: flex;
+        }
+
+        .main {
+            margin-left: 220px;
+            padding: 30px;
+            width: 100%;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 500px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .primary {
+            background: #6366f1;
+            color: white;
+        }
+
+        .correct { color: green; }
+        .wrong { color: red; }
+
+    </style>
+</head>
+
+<body>
+
+<div class="main">
+    <h1>Quiz</h1>
+
+    <div class="card">
+
+        <!-- SETTINGS -->
+        <div>
+            <label>
+                Direction:
+                <select id="mode">
+                    <option value="es-en">Spanish → English</option>
+                    <option value="en-es">English → Spanish</option>
+                </select>
+            </label>
+
+            <br><br>
+
+            <label>
+                Mode:
+                <select id="typeMode">
+                    <option value="input">Type Answer</option>
+                    <option value="show">Show Answer</option>
+                </select>
+            </label>
+        </div>
+
+        <hr>
+
+        <!-- QUESTION -->
+        <h2 id="question">Loading...</h2>
+
+        <!-- INPUT -->
+        <input id="answer" placeholder="Type answer">
+
+        <br>
+
+        <button class="primary" onclick="checkAnswer()">Submit</button>
+        <button onclick="showAnswer()">Show Answer</button>
+        <button onclick="nextCard()">Next</button>
+        <button onclick="speak()">🔊</button>
+
+        <p id="result"></p>
+
+    </div>
+</div>
+
+<script>
+let cards = [];
+let current = null;
+
+// Load cards
+async function loadCards() {
+    const res = await fetch('/cards');
+    cards = await res.json();
+    nextCard();
+}
+
+function nextCard() {
+    current = cards[Math.floor(Math.random() * cards.length)];
+    document.getElementById("result").innerText = "";
+    document.getElementById("answer").value = "";
+
+    const mode = document.getElementById("mode").value;
+
+    document.getElementById("question").innerText =
+        mode === "es-en" ? current.front : current.back;
+}
+
+function checkAnswer() {
+    const mode = document.getElementById("mode").value;
+    const user = document.getElementById("answer").value.toLowerCase().trim();
+
+    const correct = mode === "es-en"
+        ? current.back.toLowerCase()
+        : current.front.toLowerCase();
+
+    if (user === correct) {
+        document.getElementById("result").innerHTML = "<span class='correct'>Correct!</span>";
+    } else {
+        document.getElementById("result").innerHTML =
+            "<span class='wrong'>Wrong. Answer: " + correct + "</span>";
+    }
+}
+
+function showAnswer() {
+    const mode = document.getElementById("mode").value;
+
+    const answer = mode === "es-en"
+        ? current.back
+        : current.front;
+
+    document.getElementById("result").innerText = answer;
+}
+
+function speak() {
+    const mode = document.getElementById("mode").value;
+
+    const text = mode === "es-en"
+        ? current.front
+        : current.back;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    // Basic Spanish voice
+    utterance.lang = "es-ES";
+
+    speechSynthesis.speak(utterance);
+}
+
+loadCards();
+</script>
+
+</body>
+</html>
