@@ -4,8 +4,9 @@
 <title>Quiz</title>
 
 <style>
-    
-    .sidebar {
+
+/* SIDEBAR */
+.sidebar {
     width: 220px;
     height: 100vh;
     background: linear-gradient(180deg, #111827, #1f2937);
@@ -14,35 +15,36 @@
     left: 0;
     top: 0;
     padding: 20px;
-    }
+}
 
-    .logo {
+.logo {
     font-size: 20px;
     font-weight: bold;
     margin-bottom: 40px;
     display: flex;
     align-items: center;
     gap: 10px;
-    }
+}
 
-    .logo img {
+.logo img {
     width: 30px;
-    }
+}
 
-    .nav a {
+.nav a {
     display: block;
     color: #9ca3af;
     text-decoration: none;
     margin: 10px 0;
     padding: 10px;
     border-radius: 8px;
-    }
+}
 
-    .nav a:hover, .nav a.active {
+.nav a:hover, .nav a.active {
     background: #374151;
     color: white;
-    }
+}
 
+/* STATS */
 .stats {
     display: flex;
     gap: 20px;
@@ -71,7 +73,8 @@
     width: 0%;
     background: linear-gradient(135deg, #22c55e, #4ade80);
 }
-    
+
+/* BODY */
 body {
     margin: 0;
     font-family: Arial;
@@ -79,18 +82,6 @@ body {
     display: flex;
 }
 
-<div class="sidebar">
-    <div class="logo">
-        <img src="https://flagcdn.com/w40/es.png">
-        Spanish
-    <div>
-
-    <div class="nav">
-        <a href="/">Flashcards</a>
-        <a href="/quiz" class="active">Quiz</a>
-    <div>
-<div>
-    
 /* MAIN */
 .main {
     margin-left: 240px;
@@ -103,7 +94,7 @@ h1 {
     margin-bottom: 20px;
 }
 
-/* SETTINGS BAR */
+/* SETTINGS */
 .settings {
     background: white;
     padding: 15px;
@@ -112,7 +103,7 @@ h1 {
     margin-bottom: 30px;
 }
 
-/* FLASHCARD */
+/* CARD */
 .card-container {
     perspective: 1000px;
     display: flex;
@@ -146,13 +137,11 @@ h1 {
     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
 }
 
-/* FRONT */
 .front {
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
     color: white;
 }
 
-/* BACK */
 .back {
     background: white;
     color: #333;
@@ -205,11 +194,25 @@ button {
 
 <body>
 
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="logo">
+        <img src="https://flagcdn.com/w40/es.png">
+        Spanish
+    </div>
+
+    <div class="nav">
+        <a href="/">Flashcards</a>
+        <a href="/quiz" class="active">Quiz</a>
+    </div>
+</div>
+
+<!-- MAIN -->
 <div class="main">
 
 <h1>Quiz</h1>
 
-<!-- STATS SECTION -->
+<!-- STATS -->
 <div class="stats">
     <div class="stat-box">
         <h3 id="reviewed">0</h3>
@@ -220,8 +223,8 @@ button {
         <p>Correct</p>
     </div>
     <div class="stat-box">
-        <h3 id="streak">0</h3>
-        <p>Streak 🔥</p>
+        <h3 id="streak">0 🔥</h3>
+        <p>Streak</p>
     </div>
 </div>
 
@@ -246,7 +249,7 @@ button {
     </select>
 </div>
 
-<!-- FLASHCARD -->
+<!-- CARD -->
 <div class="card-container">
     <div class="flashcard" id="card" onclick="flipCard()">
         <div class="card-face front" id="front"></div>
@@ -270,8 +273,13 @@ button {
 </div>
 
 <script>
+
 let cards = [];
 let current = null;
+
+let reviewed = 0;
+let correctCount = 0;
+let streak = 0;
 
 async function loadCards() {
     const res = await fetch('/cards');
@@ -307,13 +315,29 @@ function checkAnswer() {
         ? current.back.toLowerCase()
         : current.front.toLowerCase();
 
+    reviewed++;
+
     if (user === correct) {
+        correctCount++;
+        streak++;
         document.getElementById("result").innerHTML =
             "<span class='correct'>Correct!</span>";
     } else {
+        streak = 0;
         document.getElementById("result").innerHTML =
             "<span class='wrong'>Wrong. Answer: " + correct + "</span>";
     }
+
+    updateStats();
+}
+
+function updateStats() {
+    document.getElementById("reviewed").innerText = reviewed;
+    document.getElementById("correct").innerText = correctCount;
+    document.getElementById("streak").innerText = streak + " 🔥";
+
+    let percent = (correctCount / Math.max(reviewed, 1)) * 100;
+    document.getElementById("progress").style.width = percent + "%";
 }
 
 function speak() {
@@ -330,42 +354,6 @@ function speak() {
 }
 
 loadCards();
-    
-    let reviewed = 0;
-    let correctCount = 0;
-    let streak = 0;
-
-function checkAnswer() {
-    const mode = document.getElementById("mode").value;
-    const user = document.getElementById("answer").value.toLowerCase().trim();
-
-    const correct = mode === "es-en"
-        ? current.back.toLowerCase()
-        : current.front.toLowerCase();
-
-    reviewed++;
-
-    if (user === correct) {
-        correctCount++;
-        streak++;
-        document.getElementById("result").innerHTML =
-            "<span class='correct'>Correct!</span>";
-    } else {
-        streak = 0;
-        document.getElementById("result").innerHTML =
-            "<span class='wrong'>Wrong. Answer: " + correct + "</span>";
-    }
-
-    updateStats();
-}
-function updateStats() {
-    document.getElementById("reviewed-count").innerText = reviewed;
-    document.getElementById("correct-count").innerText = correctCount;
-    document.getElementById("streak-count").innerText = streak + " 🔥";
-
-    let percent = (correctCount / Math.max(reviewed, 1)) * 100;
-    document.getElementById("progress").style.width = percent + "%";
-}
 
 </script>
 
