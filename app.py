@@ -106,6 +106,7 @@ def writing():
 def generate_story():
     topic = request.args.get("topic")
     level = request.args.get("level")
+    tense = request.args.get("tense")
 
     story = [
         {"english": "I arrived at the airport.", "spanish": "Llegué al aeropuerto."},
