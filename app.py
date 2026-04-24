@@ -24,29 +24,26 @@ def home():
 # ------------------------
 # Add flashcard
 # ------------------------
-@app.route("/add", methods=["POST"])
+@app.route("/add_flashcard", methods=["POST"])
 def add_flashcard():
-    data = request.get_json()
+    data = request.json
 
-    if not data:
-        return jsonify({"error": "No JSON received"}), 400
-
-    front = data.get("front")
-    back = data.get("back")
+    english = data["front"]
+    spanish = data["back"]
 
     conn = get_db()
     cur = conn.cursor()
 
     cur.execute(
-        'INSERT INTO "Flashcards" ("Spanish", "English") VALUES (%s, %s)',
-        (front, back)
+        'INSERT INTO "Flashcards" ("English", "Spanish") VALUES (%s, %s)',
+        (english, spanish)
     )
 
     conn.commit()
     cur.close()
     conn.close()
 
-    return jsonify({"message": "Flashcard added!"})
+    return jsonify({"status": "success"})
 
 # ------------------------
 # Get all flashcards
@@ -141,30 +138,6 @@ def check_writing():
             "correct": False,
             "feedback": correct
         })
-
-# ------------------------
-# Add Flashcard
-# ------------------------
-@app.route("/add_flashcard", methods=["POST"])
-def add_flashcard():
-    data = request.json
-
-    english = data["front"]
-    spanish = data["back"]
-
-    conn = get_db()
-    cur = conn.cursor()
-
-    cur.execute(
-        'INSERT INTO "Flashcards" ("English", "Spanish") VALUES (%s, %s)',
-        (english, spanish)
-    )
-
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    return jsonify({"status": "success"})
 
 # ------------------------
 # Run app
