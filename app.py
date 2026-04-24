@@ -96,6 +96,13 @@ def quiz():
     return render_template("quiz.html")
 
 # ------------------------
+# Spanish Writing
+# ------------------------
+@app.route("/writing")
+def writing():
+    return render_template("writing.html")
+
+# ------------------------
 # Run app
 # ------------------------
 if __name__ == "__main__":
