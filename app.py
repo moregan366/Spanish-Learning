@@ -103,6 +103,70 @@ def writing():
     return render_template("writing.html")
 
 # ------------------------
+# Generate Story
+# ------------------------
+@app.route("/generate_story")
+def generate_story():
+    topic = request.args.get("topic")
+    level = request.args.get("level")
+
+    story = [
+        {"english": "I arrived at the airport.", "spanish": "Llegué al aeropuerto."},
+        {"english": "It was very busy.", "spanish": "Estaba muy ocupado."},
+        {"english": "I looked for my gate.", "spanish": "Busqué mi puerta."},
+        {"english": "I bought a coffee.", "spanish": "Compré un café."},
+        {"english": "The flight was delayed.", "spanish": "El vuelo se retrasó."},
+        {"english": "I sat down and waited.", "spanish": "Me senté y esperé."},
+        {"english": "I met a friendly person.", "spanish": "Conocí a una persona amable."},
+        {"english": "We started talking.", "spanish": "Empezamos a hablar."},
+        {"english": "Finally, we boarded.", "spanish": "Finalmente, embarcamos."},
+        {"english": "The journey began.", "spanish": "El viaje comenzó."}
+    ]
+
+    return jsonify(story)
+
+# ------------------------
+# Check Writing
+# ------------------------
+@app.route("/check_writing", methods=["POST"])
+def check_writing():
+    data = request.json
+    user = data["user"].lower().strip()
+    correct = data["correct"].lower().strip()
+
+    if user == correct:
+        return jsonify({"correct": True})
+    else:
+        return jsonify({
+            "correct": False,
+            "feedback": correct
+        })
+
+# ------------------------
+# Add Flashcard
+# ------------------------
+@app.route("/add_flashcard", methods=["POST"])
+def add_flashcard():
+    data = request.json
+
+    english = data["front"]
+    spanish = data["back"]
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute(
+        'INSERT INTO "Flashcards" ("English", "Spanish") VALUES (%s, %s)',
+        (english, spanish)
+    )
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({"status": "success"})
+
+# ------------------------
 # Run app
 # ------------------------
 if __name__ == "__main__":
