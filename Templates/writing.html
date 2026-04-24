@@ -194,9 +194,7 @@ async function startWriting() {
     const level = document.getElementById("level").value;
     const tense = document.getElementById("tense").value;
 
-    fetch(`/generate_story?topic=${topic}&level=${level}&tense=${tense}`)
-
-    const res = await fetch(`/generate_story?topic=${topic}&level=${level}`);
+    const res = await fetch(`/generate_story?topic=${topic}&level=${level}&tense=${tense}`);
     story = await res.json();
 
     index = 0;
