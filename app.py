@@ -109,61 +109,61 @@ def generate_story():
     tense = request.args.get("tense")
 
     if tense == "present":
-    story = [
-        {"english": "I arrive at the airport.", "spanish": "Llego al aeropuerto."},
-        {"english": "It is very busy.", "spanish": "Está muy ocupado."},
-        {"english": "I look for my gate.", "spanish": "Busco mi puerta."},
-        {"english": "I buy a coffee.", "spanish": "Compro un café."},
-        {"english": "The flight is delayed.", "spanish": "El vuelo se retrasa."},
-        {"english": "I sit and wait.", "spanish": "Me siento y espero."},
-        {"english": "I meet a friendly person.", "spanish": "Conozco a una persona amable."},
-        {"english": "We talk.", "spanish": "Hablamos."},
-        {"english": "We board.", "spanish": "Embarcamos."},
-        {"english": "The journey begins.", "spanish": "El viaje comienza."}
-    ]
+        story = [
+            {"english": "I arrive at the airport.", "spanish": "Llego al aeropuerto."},
+            {"english": "It is very busy.", "spanish": "Está muy ocupado."},
+            {"english": "I look for my gate.", "spanish": "Busco mi puerta."},
+            {"english": "I buy a coffee.", "spanish": "Compro un café."},
+            {"english": "The flight is delayed.", "spanish": "El vuelo se retrasa."},
+            {"english": "I sit and wait.", "spanish": "Me siento y espero."},
+            {"english": "I meet a friendly person.", "spanish": "Conozco a una persona amable."},
+            {"english": "We talk.", "spanish": "Hablamos."},
+            {"english": "We board.", "spanish": "Embarcamos."},
+            {"english": "The journey begins.", "spanish": "El viaje comienza."}
+        ]
 
-elif tense == "preterite":
-    story = [
-        {"english": "I arrived at the airport.", "spanish": "Llegué al aeropuerto."},
-        {"english": "It was very busy.", "spanish": "Estaba muy ocupado."},
-        {"english": "I looked for my gate.", "spanish": "Busqué mi puerta."},
-        {"english": "I bought a coffee.", "spanish": "Compré un café."},
-        {"english": "The flight was delayed.", "spanish": "El vuelo se retrasó."},
-        {"english": "I sat and waited.", "spanish": "Me senté y esperé."},
-        {"english": "I met a friendly person.", "spanish": "Conocí a una persona amable."},
-        {"english": "We started talking.", "spanish": "Empezamos a hablar."},
-        {"english": "We boarded.", "spanish": "Embarcamos."},
-        {"english": "The journey began.", "spanish": "El viaje comenzó."}
-    ]
+    elif tense == "preterite":
+        story = [
+            {"english": "I arrived at the airport.", "spanish": "Llegué al aeropuerto."},
+            {"english": "It was very busy.", "spanish": "Estaba muy ocupado."},
+            {"english": "I looked for my gate.", "spanish": "Busqué mi puerta."},
+            {"english": "I bought a coffee.", "spanish": "Compré un café."},
+            {"english": "The flight was delayed.", "spanish": "El vuelo se retrasó."},
+            {"english": "I sat and waited.", "spanish": "Me senté y esperé."},
+            {"english": "I met a friendly person.", "spanish": "Conocí a una persona amable."},
+            {"english": "We started talking.", "spanish": "Empezamos a hablar."},
+            {"english": "We boarded.", "spanish": "Embarcamos."},
+            {"english": "The journey began.", "spanish": "El viaje comenzó."}
+        ]
 
-elif tense == "future":
-    story = [
-        {"english": "I will arrive at the airport.", "spanish": "Llegaré al aeropuerto."},
-        {"english": "It will be busy.", "spanish": "Estará ocupado."},
-        {"english": "I will look for my gate.", "spanish": "Buscaré mi puerta."},
-        {"english": "I will buy a coffee.", "spanish": "Compraré un café."},
-        {"english": "The flight will be delayed.", "spanish": "El vuelo se retrasará."},
-        {"english": "I will sit and wait.", "spanish": "Me sentaré y esperaré."},
-        {"english": "I will meet someone.", "spanish": "Conoceré a alguien."},
-        {"english": "We will talk.", "spanish": "Hablaremos."},
-        {"english": "We will board.", "spanish": "Embarcaremos."},
-        {"english": "The journey will begin.", "spanish": "El viaje comenzará."}
-    ]
+    elif tense == "future":
+        story = [
+            {"english": "I will arrive at the airport.", "spanish": "Llegaré al aeropuerto."},
+            {"english": "It will be busy.", "spanish": "Estará ocupado."},
+            {"english": "I will look for my gate.", "spanish": "Buscaré mi puerta."},
+            {"english": "I will buy a coffee.", "spanish": "Compraré un café."},
+            {"english": "The flight will be delayed.", "spanish": "El vuelo se retrasará."},
+            {"english": "I will sit and wait.", "spanish": "Me sentaré y esperaré."},
+            {"english": "I will meet someone.", "spanish": "Conoceré a alguien."},
+            {"english": "We will talk.", "spanish": "Hablaremos."},
+            {"english": "We will board.", "spanish": "Embarcaremos."},
+            {"english": "The journey will begin.", "spanish": "El viaje comenzará."}
+        ]
 
-else:
-    # mixed
-    story = [
-        {"english": "I arrived at the airport.", "spanish": "Llegué al aeropuerto."},
-        {"english": "It was busy.", "spanish": "Estaba ocupado."},
-        {"english": "I buy a coffee.", "spanish": "Compro un café."},
-        {"english": "I will sit down.", "spanish": "Me sentaré."},
-        {"english": "I was waiting.", "spanish": "Estaba esperando."},
-        {"english": "I met someone.", "spanish": "Conocí a alguien."},
-        {"english": "We talk.", "spanish": "Hablamos."},
-        {"english": "We will board soon.", "spanish": "Embarcaremos pronto."},
-        {"english": "The journey begins.", "spanish": "El viaje comienza."},
-        {"english": "It was a good day.", "spanish": "Fue un buen día."}
-    ]
+    else:
+        # mixed
+        story = [
+            {"english": "I arrived at the airport.", "spanish": "Llegué al aeropuerto."},
+            {"english": "It was busy.", "spanish": "Estaba ocupado."},
+            {"english": "I buy a coffee.", "spanish": "Compro un café."},
+            {"english": "I will sit down.", "spanish": "Me sentaré."},
+            {"english": "I was waiting.", "spanish": "Estaba esperando."},
+            {"english": "I met someone.", "spanish": "Conocí a alguien."},
+            {"english": "We talk.", "spanish": "Hablamos."},
+            {"english": "We will board soon.", "spanish": "Embarcaremos pronto."},
+            {"english": "The journey begins.", "spanish": "El viaje comienza."},
+            {"english": "It was a good day.", "spanish": "Fue un buen día."}
+        ]
 
     return jsonify(story)
 
