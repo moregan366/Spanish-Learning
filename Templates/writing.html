@@ -130,7 +130,7 @@ button {
 <div id="setup" class="card">
 
     <h3>Select Topic</h3>
-    <select id="topic">
+    <select id="topic" onchange="loadSavedStories()">
         <option>Travel</option>
         <option>Business</option>
         <option>Sport</option>
@@ -138,7 +138,7 @@ button {
     </select>
 
     <h3>Select Level</h3>
-    <select id="level">
+    <select id="level" onchange="loadSavedStories()">
         <option>A1</option>
         <option>A2</option>
         <option>B1</option>
@@ -148,13 +148,15 @@ button {
     </select>
 
     <label>Tense:</label>
-    <select id="tense">
+    <select id="tense" onchange="loadSavedStories()">
         <option value="present">Present</option>
         <option value="preterite">Preterite</option>
         <option value="imperfect">Imperfect</option>
         <option value="future">Future</option>
         <option value="mixed">Mixed</option>
     </select>
+
+    <div id="savedStories" style="margin-top: 20px;"></div>
 
     <br><br>
     <button id="startBtn" class="primary" onclick="startWriting()">Start Writing</button>
@@ -222,6 +224,37 @@ function loadCard() {
     document.getElementById("cardText").innerText = current.english;
     document.getElementById("answer").value = "";
     document.getElementById("result").innerText = "";
+}
+
+/* LOAD SAVED STORIES */
+async function loadSavedStories() {
+    const topic = document.getElementById("topic").value;
+    const level = document.getElementById("level").value;
+    const tense = document.getElementById("tense").value;
+
+    const res = await fetch(`/get_stories?topic=${topic}&level=${level}&tense=${tense}`);
+    const stories = await res.json();
+
+    const container = document.getElementById("savedStories");
+    container.innerHTML = "";
+
+    stories.forEach(s => {
+        const div = document.createElement("div");
+        div.innerText = s.title;
+        div.style.cursor = "pointer";
+
+        div.onclick = () => {
+            story = s.content;
+            index = 0;
+
+            document.getElementById("setup").style.display = "none";
+            document.getElementById("writingArea").style.display = "block";
+
+            loadCard();
+        };
+
+        container.appendChild(div);
+    });
 }
 
 /* CHECK */
