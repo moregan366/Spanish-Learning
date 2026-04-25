@@ -190,6 +190,12 @@ let current = null;
 
 /* START */
 async function startWriting() {
+    const button = document.getElementById("startBtn");
+
+    // 🔄 Loading state
+    button.innerText = "Generating...";
+    button.disabled = true;
+
     const topic = document.getElementById("topic").value;
     const level = document.getElementById("level").value;
     const tense = document.getElementById("tense").value;
@@ -203,6 +209,10 @@ async function startWriting() {
     document.getElementById("writingArea").style.display = "block";
 
     loadCard();
+
+        // ✅ Reset button
+    button.innerText = "Start Writing";
+    button.disabled = false;
 }
 
 /* LOAD CARD */
