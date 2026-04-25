@@ -124,10 +124,13 @@ def generate_story():
     Level: {level}
     Tense: {tense}
 
-    Generate exactly 10 short connected sentences.
-
-    Format each line EXACTLY like this:
+    Generate EXACTLY 10 short, connected sentences that form a coherent story.
+    
+    Each line MUST follow this format:
     English | Spanish
+
+    Do not include numbering.
+    Do not include extra text.
 
     Example:
     I go to the store. | Voy a la tienda.
@@ -144,12 +147,12 @@ def generate_story():
     lines = text.split("\n")
 
     for line in lines:
-        if "|" in line:
-            parts = line.split("|")
-            story.append({
-                "english": parts[0].strip(),
-                "spanish": parts[1].strip()
-            })
+    if "|" in line:
+        english, spanish = line.split("|", 1)
+        story.append({
+            "english": english.strip(),
+            "spanish": spanish.strip()
+        })
 
     return jsonify(story)
 
