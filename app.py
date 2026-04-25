@@ -180,6 +180,42 @@ def generate_story():
     return jsonify(story)
 
 # ------------------------
+# Get Stories
+# ------------------------
+@app.route("/get_stories")
+def get_stories():
+    topic = request.args.get("topic") or ""
+    level = request.args.get("level") or ""
+    tense = request.args.get("tense") or ""
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id, title, content
+        FROM stories
+        WHERE topic=%s AND level=%s AND tense=%s
+        ORDER BY created_at DESC
+        LIMIT 10
+    """, (topic, level, tense))
+
+    rows = cur.fetchall()
+
+    stories = [
+        {
+            "id": r[0],
+            "title": r[1],
+            "content": json.loads((r[2])
+        }
+        for r in rows
+    ]
+
+    cur.close()
+    conn.close()
+
+    return jsonify(stories)
+
+# ------------------------
 # Check Writing
 # ------------------------
 @app.route("/check_writing", methods=["POST"])
