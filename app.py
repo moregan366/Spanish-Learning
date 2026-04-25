@@ -205,7 +205,7 @@ def get_stories():
         {
             "id": r[0],
             "title": r[1],
-            "content": json.loads((r[2])
+            "content": json.loads(r[2])
         }
         for r in rows
     ]
