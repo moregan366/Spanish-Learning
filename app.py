@@ -147,12 +147,12 @@ def generate_story():
     lines = text.split("\n")
 
     for line in lines:
-    if "|" in line:
-        english, spanish = line.split("|", 1)
-        story.append({
-            "english": english.strip(),
-            "spanish": spanish.strip()
-        })
+        if "|" in line:
+            english, spanish = line.split("|", 1)
+            story.append({
+                "english": english.strip(),
+                "spanish": spanish.strip()
+            })
 
     return jsonify(story)
 
