@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
 import os
+import json
 import psycopg2
 
 from openai import OpenAI
@@ -153,6 +154,28 @@ def generate_story():
                 "english": english.strip(),
                 "spanish": spanish.strip()
             })
+
+    # ✅ SAVE STORIES
+
+    conn = psycopg2.connect(os.environ["DATABASE_URL"])
+    cur = conn.cursor()
+
+    title = story[0]["english"][:40] if story else "Untitled story"
+
+    cur.execute("""
+        INSERT INTO stories (title, topic, level, tense, content)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (
+        title,
+        topic,
+        level,
+        tense,
+        json.dumps(story)
+    ))
+
+    conn.commit()
+    cur.close()
+    conn.close()
 
     return jsonify(story)
 
