@@ -194,10 +194,13 @@ def get_stories():
     cur.execute("""
         SELECT id, title, content
         FROM stories
-        WHERE topic=%s AND level=%s AND tense=%s
+        WHERE LOWER(topic)=LOWER(%s)
+          AND LOWER(level)=LOWER(%s)
+          AND LOWER(tense)=LOWER(%s)
         ORDER BY created_at DESC
         LIMIT 10
     """, (topic, level, tense))
+
 
     rows = cur.fetchall()
 
