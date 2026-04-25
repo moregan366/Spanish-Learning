@@ -204,14 +204,26 @@ def get_stories():
 
     rows = cur.fetchall()
 
-    stories = [
-        {
-            "id": r[0],
-            "title": r[1],
-            "content": json.loads(r[2])
-        }
-        for r in rows
-    ]
+    print("Rows from DB:", rows)  # 👈 debug (keep this)
+
+    stories = []
+
+    for r in rows:
+        try:
+            content = r[2]
+
+            # If it's a string → parse it
+            if isinstance(content, str):
+                content = json.loads(content)
+
+            stories.append({
+                "id": r[0],
+                "title": r[1],
+                "content": content
+            })
+
+        except Exception as e:
+            print("ERROR parsing story:", e)
 
     cur.close()
     conn.close()
