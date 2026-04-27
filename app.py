@@ -4,6 +4,7 @@ from flask_cors import CORS
 import os
 import json
 import psycopg2
+import random
 
 from openai import OpenAI
 
@@ -118,6 +119,31 @@ def generate_story():
     level = request.args.get("level")
     tense = request.args.get("tense")
 
+    cur = conn.cursor()
+    
+    cur.execute("""
+    SELECT content
+    FROM stories
+    WHERE LOWER(topic)=LOWER(%s)
+    AND LOWER(level)=LOWER(%s)
+    AND LOWER(tense)=LOWER(%s)
+    ORDER BY created_at DESC
+    LIMIT 5
+    """, (topic, level, tense))
+
+    existing = [r[0] for r in cur.fetchall()]
+    existing_text = "\n".join(str(e) for e in existing)
+
+    cur.close()
+    
+    random_hint = random.choice([
+    "The story happens at an airport.",
+    "The story happens in a restaurant.",
+    "The story happens in a hotel.",
+    "The story happens while walking in a city.",
+    "The story happens on a train."
+    ])
+    
     prompt = f"""
     Create a Spanish learning story.
 
@@ -125,8 +151,24 @@ def generate_story():
     Level: {level}
     Tense: {tense}
 
-    Generate EXACTLY 10 short, connected sentences that form a coherent story.
+    IMPORTANT:
+    Do NOT repeat or resemble any of these previous stories:
+
+    ---
+    {existing_text}
+    ---
     
+    Make this story clearly different by:
+    - Using a different setting (e.g. airport, hotel, restaurant, city walk)
+    - Using different verbs and vocabulary
+    - Avoiding phrases like "I travel to Spain"
+
+    Story idea: {random_hint}
+
+    Keep it appropriate for {level} learners.
+
+    Generate EXACTLY 10 short, connected sentences that form a coherent story.
+
     Each line MUST follow this format:
     English | Spanish
 
@@ -136,7 +178,7 @@ def generate_story():
     Example:
     I go to the store. | Voy a la tienda.
     """
-
+    
     response = client.chat.completions.create(
         model="gpt-4.1-mini",
         messages=[{"role": "user", "content": prompt}]
