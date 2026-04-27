@@ -236,7 +236,7 @@ def get_stories():
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT id, title, content
+        SELECT id, title, content, score, feedback
         FROM stories
         WHERE LOWER(topic)=LOWER(%s)
           AND LOWER(level)=LOWER(%s)
@@ -264,6 +264,8 @@ def get_stories():
                 "id": r[0],
                 "title": r[1],
                 "content": content
+                "score": r[3],
+                "feedback": r[4]
             })
 
         except Exception as e:
