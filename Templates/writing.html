@@ -269,6 +269,7 @@ async function loadSavedStories() {
 
     const res = await fetch(`/get_stories?topic=${topic}&level=${level}&tense=${tense}`);
     const stories = await res.json();
+    window.savedStoriesCache = stories;
 
     const container = document.getElementById("savedStories");
     container.innerHTML = "";
@@ -283,7 +284,18 @@ async function loadSavedStories() {
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <div>
                 <h4>${s.title}</h4>
-                <p style="color:#6b7280;">Score: ${s.score ?? "N/A"}%</p>
+                <p style="color:#6b7280;">
+                    ${s.progress_index 
+                        ? "In Progress" 
+                        : `Score: ${s.score ?? "N/A"}%`}
+                </p>
+
+                ${s.progress_index ? `
+                    <button onclick="resumeStory(event, ${s.id})" class="primary">
+                    Resume
+                    </button>
+                ` : ""}
+
                 <a href="#" onclick='viewFeedback(event, ${JSON.stringify(s.feedback || "No feedback yet")})'>
                     View feedback
                 </a>
@@ -462,6 +474,23 @@ async function exitStory() {
     document.getElementById("setup").style.display = "block";
 
     loadSavedStories();
+}
+
+/* RESUME STORY */
+function resumeStory(event, id) {
+    event.stopPropagation();
+
+    const storyData = window.savedStoriesCache.find(s => s.id === id);
+
+    story = storyData.content;
+    index = storyData.progress_index || 0;
+    results = storyData.progress_results || [];
+    currentStoryId = id;
+
+    document.getElementById("setup").style.display = "none";
+    document.getElementById("writingArea").style.display = "block";
+
+    loadCard();
 }
 
 window.onload = loadSavedStories;
