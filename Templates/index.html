@@ -290,7 +290,7 @@ async function addCard() {
 
     if (!front || !back) return;
 
-    await fetch('/add', {
+    await fetch('/add_flashcard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ front, back })
