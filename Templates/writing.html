@@ -235,7 +235,10 @@ async function startWriting() {
     const tense = document.getElementById("tense").value;
 
     const res = await fetch(`/generate_story?topic=${topic}&level=${level}&tense=${tense}`);
-    story = await res.json();
+    const data = await res.json();
+
+    story = data.story;
+    currentStoryId = data.id;   
 
     currentStoryId = null; // new story
     results = [];
