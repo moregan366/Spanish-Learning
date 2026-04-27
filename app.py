@@ -263,7 +263,7 @@ def get_stories():
             stories.append({
                 "id": r[0],
                 "title": r[1],
-                "content": content
+                "content": content,
                 "score": r[3],
                 "feedback": r[4]
             })
