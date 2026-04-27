@@ -354,7 +354,7 @@ def complete_story():
 
         total = len(results)
         correct_count = sum(1 for r in results if r["correct"])
-        score = int((correct_count / total) * 100)
+        score = int((correct_count / total) * 100) if total > 0 else 0
 
         # Build AI summary
         mistakes = [
@@ -396,11 +396,14 @@ Keep it concise and encouraging.
             UPDATE stories
             SET score = %s,
                 feedback = %s
-            WHERE LOWER(topic)=LOWER(%s)
-              AND LOWER(level)=LOWER(%s)
-              AND LOWER(tense)=LOWER(%s)
-            ORDER BY created_at DESC
-            LIMIT 1
+            WHERE id = (
+                SELECT id FROM stories
+                WHERE LOWER(topic)=LOWER(%s)
+                  AND LOWER(level)=LOWER(%s)
+                  AND LOWER(tense)=LOWER(%s)
+                ORDER BY created_at DESC
+                LIMIT 1
+            )
         """, (score, feedback, data["topic"], data["level"], data["tense"]))
 
         conn.commit()
