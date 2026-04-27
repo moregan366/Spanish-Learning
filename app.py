@@ -119,6 +119,7 @@ def generate_story():
     level = request.args.get("level")
     tense = request.args.get("tense")
 
+    conn = get_db_connection()
     cur = conn.cursor()
     
     cur.execute("""
@@ -135,6 +136,7 @@ def generate_story():
     existing_text = "\n".join(str(e) for e in existing)
 
     cur.close()
+    conn.close()
     
     random_hint = random.choice([
     "The story happens at an airport.",
