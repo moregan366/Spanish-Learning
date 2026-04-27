@@ -204,6 +204,7 @@ button {
 let story = [];
 let index = 0;
 let current = null;
+let results = [];
 
 speechSynthesis.onvoiceschanged = () => {
     speechSynthesis.getVoices();
@@ -290,11 +291,19 @@ async function checkAnswer() {
     });
 
     const data = await res.json();
+    
+    const isCorrect = data.correct;
+
+    results.push({
+        correct: isCorrect,
+        user: user,
+        correctAnswer: current.spanish
+    });
 
     document.getElementById("result").innerHTML =
-        data.correct
+        isCorrect
         ? "<span class='correct'>Correct</span>"
-        : "<span class='wrong'>Better: " + data.feedback + "</span>";
+        : "<span class='wrong'>" + data.feedback + "</span>";
 }
 
 /* SPEAK TEXT */
