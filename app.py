@@ -119,7 +119,7 @@ def generate_story():
     level = request.args.get("level")
     tense = request.args.get("tense")
 
-    conn = get_db_connection()
+    conn = get_db()
     cur = conn.cursor()
     
     cur.execute("""
@@ -201,7 +201,7 @@ def generate_story():
 
     # ✅ SAVE STORIES
 
-    conn = psycopg2.connect(os.environ["DATABASE_URL"])
+    conn = get_db()
     cur = conn.cursor()
 
     title = story[0]["english"][:40] if story else "Untitled story"
