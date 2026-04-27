@@ -279,7 +279,7 @@ async function loadSavedStories() {
             <div>
                 <h4>${s.title}</h4>
                 <p style="color:#6b7280;">Score: ${s.score ?? "N/A"}%</p>
-                <a href="#" onclick="viewFeedback(event, \`${s.feedback || "No feedback yet"}\`)">
+                <a href="#" onclick="viewFeedback(event, `${s.feedback || "No feedback yet"}`)">
                     View feedback
                 </a>
             </div>
@@ -354,7 +354,6 @@ function speakText() {
     speechSynthesis.cancel(); // stop previous speech if any
     speechSynthesis.speak(utterance);
 }
-
 
 /* INSERT CHARACTER */
 function insertChar(char) {
