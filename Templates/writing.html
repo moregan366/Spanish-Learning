@@ -345,10 +345,11 @@ function insertChar(char) {
 /* NEXT */
 function nextCard() {
     index++;
+
     if (index < story.length) {
         loadCard();
     } else {
-        alert("Story complete 🎉");
+        completeStory(); // 🔥 ADD THIS
     }
 }
 
@@ -365,6 +366,26 @@ async function addToFlashcards() {
 
     alert("Added to flashcards ⭐");
 }
+
+/* COMPLETE STORY */
+async function completeStory() {
+
+    const res = await fetch("/complete_story", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            results: results,
+            topic: document.getElementById("topic").value,
+            level: document.getElementById("level").value,
+            tense: document.getElementById("tense").value
+        })
+    });
+
+    const data = await res.json();
+
+    alert(`Score: ${data.score}%\n\n${data.feedback}`);
+}
+
 
 window.onload = loadSavedStories;
     
