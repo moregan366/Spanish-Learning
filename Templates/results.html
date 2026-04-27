@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Results</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #f5f7fb;
+    display: flex;
+}
+
+/* SIDEBAR (reuse) */
+.sidebar {
+    width: 220px;
+    height: 100vh;
+    background: linear-gradient(180deg, #111827, #1f2937);
+    color: white;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 20px;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 40px;
+}
+
+.nav a {
+    display: block;
+    color: #9ca3af;
+    text-decoration: none;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.nav a:hover, .nav a.active {
+    background: #374151;
+    color: white;
+}
+
+.main {
+    margin-left: 240px;
+    padding: 40px;
+    width: 100%;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.score {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="logo">🇪🇸 Spanish</div>
+
+    <div class="nav">
+        <a href="/">Flashcards</a>
+        <a href="/quiz">Quiz</a>
+        <a href="/writing">Spanish Writing</a>
+    </div>
+</div>
+
+<div class="main">
+    <div class="card">
+        <div class="score">Score: {{ score }}%</div>
+
+        <p>{{ feedback }}</p>
+    </div>
+</div>
+
+</body>
+</html>
