@@ -244,13 +244,12 @@ def get_stories():
     cur.execute("""
         SELECT id, title, content, score, feedback, progress_index, progress_results
         FROM stories
-        WHERE LOWER(topic)=LOWER(%s)
-          AND LOWER(level)=LOWER(%s)
-          AND LOWER(tense)=LOWER(%s)
+        WHERE LOWER(topic) LIKE LOWER(%s)
+          AND LOWER(level) LIKE LOWER(%s)
+          AND LOWER(tense) LIKE LOWER(%s)
         ORDER BY created_at DESC
         LIMIT 10
-    """, (topic, level, tense))
-
+    """, (f"%{topic}%", f"%{level}%", f"%{tense}%"))
 
     rows = cur.fetchall()
 
