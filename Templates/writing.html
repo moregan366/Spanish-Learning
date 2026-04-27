@@ -383,7 +383,7 @@ async function completeStory() {
 
     const data = await res.json();
 
-    alert(`Score: ${data.score}%\n\n${data.feedback}`);
+    window.location.href = `/results?score=${data.score}&feedback=${encodeURIComponent(data.feedback)}`;
 }
 
 
