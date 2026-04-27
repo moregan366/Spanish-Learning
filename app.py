@@ -420,6 +420,16 @@ Keep it concise and encouraging.
         return jsonify({"error": str(e)}), 500
 
 # ------------------------
+# Results page
+# ------------------------
+@app.route("/results")
+def results_page():
+    score = request.args.get("score")
+    feedback = request.args.get("feedback")
+
+    return render_template("results.html", score=score, feedback=feedback)
+
+# ------------------------
 # Run app
 # ------------------------
 if __name__ == "__main__":
