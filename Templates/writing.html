@@ -164,7 +164,20 @@ button {
 </div>
 
 <!-- WRITING AREA -->
+
 <div id="writingArea" style="display:none;">
+
+    <div id="charPicker" style="margin-bottom: 10px;">
+      <button onclick="insertChar('á')">á</button>
+      <button onclick="insertChar('é')">é</button>
+      <button onclick="insertChar('í')">í</button>
+      <button onclick="insertChar('ó')">ó</button>
+      <button onclick="insertChar('ú')">ú</button>
+      <button onclick="insertChar('ñ')">ñ</button>
+      <button onclick="insertChar('ü')">ü</button>
+      <button onclick="insertChar('¿')">¿</button>
+      <button onclick="insertChar('¡')">¡</button>
+    </div>
 
     <div class="card">
         <h3 id="cardText"></h3>
@@ -278,6 +291,21 @@ async function checkAnswer() {
         : "<span class='wrong'>Better: " + data.feedback + "</span>";
 }
 
+/* INSERT CHARACTER */
+function insertChar(char) {
+    const input = document.getElementById("answer"); // 👈 your input id
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+
+    input.value =
+        input.value.substring(0, start) +
+        char +
+        input.value.substring(end);
+
+    input.focus();
+    input.selectionStart = input.selectionEnd = start + 1;
+}
+    
 /* NEXT */
 function nextCard() {
     index++;
