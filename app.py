@@ -244,8 +244,6 @@ def generate_story():
         "id": story_id
     })
 
-story_id = cur.fetchone()[0]
-
 # ------------------------
 # Get Stories
 # ------------------------
