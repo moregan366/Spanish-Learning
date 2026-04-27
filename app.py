@@ -280,15 +280,67 @@ def get_stories():
 @app.route("/check_writing", methods=["POST"])
 def check_writing():
     data = request.json
-    user = data["user"].lower().strip()
-    correct = data["correct"].lower().strip()
+    user = data["user"].strip()
+    correct = data["correct"].strip()
 
-    if user == correct:
-        return jsonify({"correct": True})
-    else:
+    prompt = f"""
+You are a Spanish teacher.
+
+A student is translating a sentence into Spanish.
+
+Correct answer:
+"{correct}"
+
+Student answer:
+"{user}"
+
+Your job:
+
+1. Decide if the student's answer is ACCEPTABLE.
+   - Allow small variations (synonyms, word order, etc.)
+   - Ignore missing punctuation like full stops
+   - Minor grammar mistakes can still be acceptable if meaning is clear
+
+2. If acceptable → return:
+CORRECT
+
+3. If not acceptable → return:
+INCORRECT: followed by a short, helpful explanation and the improved version
+
+Be encouraging and educational.
+Keep feedback concise.
+
+Also briefly explain the key mistake (e.g. tense, gender, verb choice).
+
+Examples:
+
+CORRECT
+
+INCORRECT: You used the wrong verb tense. A better answer would be "Voy a la tienda."
+"""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[{"role": "user", "content": prompt}]
+        )
+
+        result = response.choices[0].message.content.strip()
+
+        if result.startswith("CORRECT"):
+            return jsonify({"correct": True})
+        else:
+            feedback = result.replace("INCORRECT:", "").strip()
+            return jsonify({
+                "correct": False,
+                "feedback": feedback
+            })
+
+    except Exception as e:
+        print("ERROR in check_writing:", e)
         return jsonify({
             "correct": False,
-            "feedback": correct
+            "feedback": "Error checking answer. Try again."
         })
 
 # ------------------------
