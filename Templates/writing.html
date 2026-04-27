@@ -259,22 +259,41 @@ async function loadSavedStories() {
     container.innerHTML = "";
 
     stories.forEach(s => {
-        const div = document.createElement("div");
-        div.innerText = s.title;
-        div.style.cursor = "pointer";
 
-        div.onclick = () => {
-            story = s.content;
-            index = 0;
+    const div = document.createElement("div");
+    div.className = "card";
+    div.style.cursor = "pointer";
 
-            document.getElementById("setup").style.display = "none";
-            document.getElementById("writingArea").style.display = "block";
+    div.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h4>${s.title}</h4>
+                <p style="color:#6b7280;">Score: ${s.score ?? "N/A"}%</p>
+                <a href="#" onclick="viewFeedback(event, \`${s.feedback || "No feedback yet"}\`)">
+                    View feedback
+                </a>
+            </div>
 
-            loadCard();
-        };
+            <div>
+                <button onclick="deleteStory(event, ${s.id})" style="background:#ef4444; color:white;">
+                    Delete
+                </button>
+            </div>
+        </div>
+    `;
 
-        container.appendChild(div);
-    });
+    div.onclick = () => {
+        story = s.content;
+        index = 0;
+
+        document.getElementById("setup").style.display = "none";
+        document.getElementById("writingArea").style.display = "block";
+
+        loadCard();
+    };
+
+    container.appendChild(div);
+});
 }
 
 /* CHECK */
@@ -386,6 +405,11 @@ async function completeStory() {
     window.location.href = `/results?score=${data.score}&feedback=${encodeURIComponent(data.feedback)}`;
 }
 
+/* VIEW FEEDBACK */
+function viewFeedback(event, feedback) {
+    event.stopPropagation(); // prevent opening story
+    alert(feedback);
+}
 
 window.onload = loadSavedStories;
     
