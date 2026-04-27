@@ -221,7 +221,30 @@ def generate_story():
     cur.close()
     conn.close()
 
-    return jsonify(story)
+    cur.execute("""
+        INSERT INTO stories (title, topic, level, tense, content)
+        VALUES (%s, %s, %s, %s, %s)
+        RETURNING id
+    """, (
+        title,
+        topic,
+        level,
+        tense,
+        json.dumps(story)
+    ))
+
+    story_id = cur.fetchone()[0]
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({
+        "story": story,
+        "id": story_id
+    })
+
+story_id = cur.fetchone()[0]
 
 # ------------------------
 # Get Stories
