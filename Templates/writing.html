@@ -199,6 +199,7 @@ button {
         <br>
         <button class="primary" onclick="checkAnswer()">Check</button>
         <button class="secondary" onclick="nextCard()">Next</button>
+        <button onclick="exitStory()" class="secondary">Exit</button>
 
         <p id="result" class="result"></p>
 
@@ -215,6 +216,7 @@ let story = [];
 let index = 0;
 let current = null;
 let results = [];
+let currentStoryId = null;
 
 speechSynthesis.onvoiceschanged = () => {
     speechSynthesis.getVoices();
@@ -234,6 +236,9 @@ async function startWriting() {
 
     const res = await fetch(`/generate_story?topic=${topic}&level=${level}&tense=${tense}`);
     story = await res.json();
+
+    currentStoryId = null; // new story
+    results = [];
 
     index = 0;
 
@@ -294,7 +299,9 @@ async function loadSavedStories() {
 
     div.onclick = () => {
         story = s.content;
-        index = 0;
+        index = s.progress_index || 0;
+        results = s.progress_results || [];
+        currentStoryId = s.id;
 
         document.getElementById("setup").style.display = "none";
         document.getElementById("writingArea").style.display = "block";
@@ -432,6 +439,29 @@ async function deleteStory(event, id) {
     });
 
     loadSavedStories(); // refresh list
+}
+
+/* EXIT STORY */
+async function exitStory() {
+
+    if (!confirm("Exit and save progress?")) return;
+
+    if (currentStoryId) {
+        await fetch(`/save_progress/${currentStoryId}`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                index: index,
+                results: results
+            })
+        });
+    }
+
+    // Go back to setup
+    document.getElementById("writingArea").style.display = "none";
+    document.getElementById("setup").style.display = "block";
+
+    loadSavedStories();
 }
 
 window.onload = loadSavedStories;
