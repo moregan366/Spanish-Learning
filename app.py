@@ -432,6 +432,28 @@ def results_page():
     return render_template("results.html", score=score, feedback=feedback)
 
 # ------------------------
+# Delete Story
+# ------------------------
+@app.route("/delete_story/<int:id>", methods=["DELETE"])
+def delete_story(id):
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+
+        cur.execute("DELETE FROM stories WHERE id = %s", (id,))
+        conn.commit()
+
+        cur.close()
+        conn.close()
+
+        return jsonify({"status": "deleted"})
+
+    except Exception as e:
+        print("ERROR deleting story:", e)
+        return jsonify({"error": str(e)}), 500
+
+
+# ------------------------
 # Run app
 # ------------------------
 if __name__ == "__main__":
