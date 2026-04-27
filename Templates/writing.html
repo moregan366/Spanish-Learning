@@ -279,7 +279,7 @@ async function loadSavedStories() {
             <div>
                 <h4>${s.title}</h4>
                 <p style="color:#6b7280;">Score: ${s.score ?? "N/A"}%</p>
-                <a href="#" onclick="viewFeedback(event, `${s.feedback || "No feedback yet"}`)">
+                <a href="#" onclick='viewFeedback(event, ${JSON.stringify(s.feedback || "No feedback yet")})'>
                     View feedback
                 </a>
             </div>
@@ -418,6 +418,20 @@ async function completeStory() {
 function viewFeedback(event, feedback) {
     event.stopPropagation(); // prevent opening story
     alert(feedback);
+}
+
+/* DELETE STORY */
+async function deleteStory(event, id) {
+    event.stopPropagation(); // stop opening story
+
+    const confirmDelete = confirm("Delete this story?");
+    if (!confirmDelete) return;
+
+    await fetch(`/delete_story/${id}`, {
+        method: "DELETE"
+    });
+
+    loadSavedStories(); // refresh list
 }
 
 window.onload = loadSavedStories;
