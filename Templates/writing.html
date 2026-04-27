@@ -287,8 +287,8 @@ async function loadSavedStories() {
             <div>
                 <h4>${s.title}</h4>
                 <p style="color:#6b7280;">
-                    ${s.progress_index 
-                        ? "In Progress" 
+                    ${s.progress_index !== null && s.progress_index !== undefined
+                        ? "In Progress"
                         : `Score: ${s.score ?? "N/A"}%`}
                 </p>
 
