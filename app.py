@@ -452,6 +452,30 @@ def delete_story(id):
         print("ERROR deleting story:", e)
         return jsonify({"error": str(e)}), 500
 
+# ------------------------
+# Save Progress
+# ------------------------
+@app.route("/save_progress/<int:id>", methods=["POST"])
+def save_progress(id):
+    data = request.json
+    index = data.get("index", 0)
+    results = json.dumps(data.get("results", []))
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE stories
+        SET progress_index = %s,
+            progress_results = %s
+        WHERE id = %s
+    """, (index, results, id))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({"status": "saved"})
 
 # ------------------------
 # Run app
