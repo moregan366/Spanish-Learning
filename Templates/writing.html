@@ -182,6 +182,8 @@ button {
     <div class="card">
         <h3 id="cardText"></h3>
 
+        <button onclick="speakText()" style="margin-bottom:10px;"> 🎤 Listen </button>
+
         <textarea id="answer" placeholder="Write in Spanish..."></textarea>
 
         <br>
@@ -198,11 +200,15 @@ button {
 </div>
 
 <script>
-
+   
 let story = [];
 let index = 0;
 let current = null;
 
+speechSynthesis.onvoiceschanged = () => {
+    speechSynthesis.getVoices();
+};
+    
 /* START */
 async function startWriting() {
     const button = document.getElementById("startBtn");
@@ -290,6 +296,27 @@ async function checkAnswer() {
         ? "<span class='correct'>Correct</span>"
         : "<span class='wrong'>Better: " + data.feedback + "</span>";
 }
+
+/* SPEAK TEXT */
+function speakText() {
+    const text = document.getElementById("cardText").innerText;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    // Try to use Spanish voice
+    const voices = speechSynthesis.getVoices();
+    const spanishVoice = voices.find(v => v.lang.startsWith("es"));
+
+    if (spanishVoice) {
+        utterance.voice = spanishVoice;
+    }
+
+    utterance.lang = "es-ES"; // Spanish
+
+    speechSynthesis.cancel(); // stop previous speech if any
+    speechSynthesis.speak(utterance);
+}
+
 
 /* INSERT CHARACTER */
 function insertChar(char) {
