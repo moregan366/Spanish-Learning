@@ -259,36 +259,33 @@ def get_stories():
     stories = []
 
     for r in rows:
-        try:
-            content = r[2]
+        content = r[2]
 
-            # ✅ Robust JSON parsing (handles all cases)
-            if isinstance(content, str):
-                try:
-                    content = json.loads(content)
-                except:
-                    pass
+        # ✅ Handle both string + jsonb safely
+        if isinstance(content, str):
+            try:
+                content = json.loads(content)
+            except:
+                content = []  # fallback instead of crashing
 
-            if isinstance(content, str):
-                try:
-                    content = json.loads(content)
-                except:
-                    pass
+        # ✅ Handle progress_results safely
+        progress_results = []
+        if r[6]:
+            try:
+                progress_results = json.loads(r[6])
+            except:
+                progress_results = []
 
-            # ✅ Always append (even if content slightly broken)
-            stories.append({
-                "id": r[0],
-                "title": r[1],
-                "content": content,
-                "score": r[3],
-                "feedback": r[4],
-                "progress_index": r[5],
-                "progress_results": json.loads(r[6]) if r[6] else []
-            })
-
-        except Exception as e:
-            print("ERROR parsing story:", e)
-            print("BAD ROW:", r)
+        # ✅ ALWAYS append (no skipping rows)
+        stories.append({
+            "id": r[0],
+            "title": r[1],
+            "content": content,
+            "score": r[3],
+            "feedback": r[4],
+            "progress_index": r[5],
+            "progress_results": progress_results
+        })
 
     cur.close()
     conn.close()
