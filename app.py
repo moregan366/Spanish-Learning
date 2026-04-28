@@ -264,10 +264,20 @@ def get_stories():
         try:
             content = r[2]
 
-            # If it's a string → parse it
+            # ✅ Robust JSON parsing (handles all cases)
             if isinstance(content, str):
-                content = json.loads(content)
+                try:
+                    content = json.loads(content)
+                except:
+                    pass
 
+            if isinstance(content, str):
+                try:
+                    content = json.loads(content)
+                except:
+                    pass
+
+            # ✅ Always append (even if content slightly broken)
             stories.append({
                 "id": r[0],
                 "title": r[1],
@@ -280,6 +290,7 @@ def get_stories():
 
         except Exception as e:
             print("ERROR parsing story:", e)
+            print("BAD ROW:", r)
 
     cur.close()
     conn.close()
