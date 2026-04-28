@@ -251,7 +251,7 @@ def get_stories():
         )
         OR progress_index IS NOT NULL
         ORDER BY created_at DESC
-        LIMIT 10
+        LIMIT 50
     """, (f"%{topic}%", f"%{level}%", f"%{tense}%"))
 
     rows = cur.fetchall()
