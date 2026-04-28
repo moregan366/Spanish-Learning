@@ -494,6 +494,13 @@ def save_progress(id):
     return jsonify({"status": "saved"})
 
 # ------------------------
+# Spanish Listening
+# ------------------------
+@app.route("/listening")
+def listening():
+    return render_template("listening.html")
+
+# ------------------------
 # Run app
 # ------------------------
 if __name__ == "__main__":
