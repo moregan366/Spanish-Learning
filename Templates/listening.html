@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Spanish Listening</title>
+
+<style>
+
+/* SAME SIDEBAR */
+.sidebar {
+    width: 220px;
+    height: 100vh;
+    background: linear-gradient(180deg, #111827, #1f2937);
+    color: white;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 20px;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo img { width: 30px; }
+
+.nav a {
+    display: block;
+    color: #9ca3af;
+    text-decoration: none;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.nav a:hover, .nav a.active {
+    background: #374151;
+    color: white;
+}
+
+/* MAIN */
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #f5f7fb;
+    display: flex;
+}
+
+.main {
+    margin-left: 240px;
+    padding: 40px;
+    width: 100%;
+}
+
+/* CARD */
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+button {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.primary {
+    background: linear-gradient(135deg, #f97316, #ec4899);
+    color: white;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="logo">
+        <img src="https://flagcdn.com/w40/es.png">
+        Spanish
+    </div>
+
+    <div class="nav">
+        <a href="/">Flashcards</a>
+        <a href="/quiz">Quiz</a>
+        <a href="/writing">Spanish Writing</a>
+        <a href="/listening" class="active">Spanish Listening</a>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<h1>Spanish Listening</h1>
+
+<div class="card">
+
+    <h3>Select Topic</h3>
+    <select id="topic">
+        <option>Travel</option>
+        <option>Business</option>
+        <option>Sport</option>
+        <option>Daily Life</option>
+    </select>
+
+    <h3>Select Level</h3>
+    <select id="level">
+        <option>A1</option>
+        <option>A2</option>
+        <option>B1</option>
+        <option>B2</option>
+        <option>C1</option>
+        <option>C2</option>
+    </select>
+
+    <h3>Select Tense</h3>
+    <select id="tense">
+        <option value="present">Present</option>
+        <option value="preterite">Preterite</option>
+        <option value="imperfect">Imperfect</option>
+        <option value="future">Future</option>
+        <option value="mixed">Mixed</option>
+    </select>
+
+    <br><br>
+
+    <button class="primary" onclick="startListening()">
+        Start Listening
+    </button>
+
+</div>
+
+</div>
+
+<script>
+
+function startListening() {
+    const topic = document.getElementById("topic").value;
+    const level = document.getElementById("level").value;
+    const tense = document.getElementById("tense").value;
+
+    alert(`Starting listening for ${topic} - ${level} - ${tense}`);
+}
+
+</script>
+
+</body>
+</html>
