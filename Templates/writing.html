@@ -292,12 +292,12 @@ async function loadSavedStories() {
                         : `Score: ${s.score ?? "N/A"}%`}
                 </p>
 
-                ${s.progress_index ? `
+                ${s.progress_index !== null && s.progress_index !== undefined ? `
                     <button onclick="resumeStory(event, ${s.id})" class="primary">
                     Resume
                     </button>
                 ` : ""}
-
+    
                 <a href="#" onclick='viewFeedback(event, ${JSON.stringify(s.feedback || "No feedback yet")})'>
                     View feedback
                 </a>
