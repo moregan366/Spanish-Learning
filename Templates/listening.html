@@ -143,12 +143,15 @@ button {
 
 <script>
 
-function startListening() {
+async function startListening() {
     const topic = document.getElementById("topic").value;
     const level = document.getElementById("level").value;
     const tense = document.getElementById("tense").value;
 
-    alert(`Starting listening for ${topic} - ${level} - ${tense}`);
+    const res = await fetch(`/generate_listening?topic=${topic}&level=${level}&tense=${tense}`);
+    const sentences = await res.json();
+
+    playListening(sentences);
 }
 
 </script>
