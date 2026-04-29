@@ -190,21 +190,26 @@ button {
 
 <script>
 
+let currentStoryId = null;
+let results = [];
+    
 async function startListening() {
     const topic = document.getElementById("topic").value;
     const level = document.getElementById("level").value;
     const tense = document.getElementById("tense").value;
 
     const res = await fetch(`/generate_listening?topic=${topic}&level=${level}&tense=${tense}`);
-    const sentences = await res.json();
+    const data = await res.json();
 
-    // 🔥 SHOW LISTENING UI
+    // ✅ NEW
+    listeningStory = data.sentences;
+    currentStoryId = data.id;
+    results = [];
+    currentIndex = 0;
+
+    // ✅ switch UI
     document.getElementById("setup").style.display = "none";
     document.getElementById("listeningArea").style.display = "block";
-
-    // reset
-    listeningStory = sentences;
-    currentIndex = 0;
 
     playCurrent();
 }
@@ -250,6 +255,12 @@ async function checkDictation() {
 
     const data = await res.json();
 
+    results.push({
+        correct: data.correct,
+        user: user,
+        correctAnswer: correct
+    });
+
     document.getElementById("feedback").innerText =
         data.correct ? "Correct ✅" : data.feedback;
 }
@@ -261,10 +272,47 @@ function nextListening() {
         document.getElementById("dictation").value = "";
         document.getElementById("feedback").innerText = "";
         playCurrent();
-    } else {
-        alert("Finished 🎉");
-        location.reload();
+    else {
+        completeListening(); // instead of alert
     }
+}
+
+async function exitListening() {
+
+    if (!confirm("Exit and save progress?")) return;
+
+    if (currentStoryId) {
+        await fetch(`/save_progress/${currentStoryId}`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                index: currentIndex,
+                results: results
+            })
+        });
+    }
+
+    document.getElementById("listeningArea").style.display = "none";
+    document.getElementById("setup").style.display = "block";
+}
+
+async function completeListening() {
+
+    const res = await fetch("/complete_story", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            results: results,
+            topic: document.getElementById("topic").value,
+            level: document.getElementById("level").value,
+            tense: document.getElementById("tense").value
+        })
+    });
+
+    const data = await res.json();
+
+    window.location.href =
+        `/results?score=${data.score}&feedback=${encodeURIComponent(data.feedback)}`;
 }
 
 </script>
