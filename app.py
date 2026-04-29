@@ -537,12 +537,37 @@ Return as JSON list like:
     import json
     text = response.choices[0].message.content.strip()
 
-    try:
-        sentences = json.loads(text)
-    except:
-        sentences = [s.strip() for s in text.split("\n") if s.strip()]
+    # Convert to structured format like writing
+    story = [{"spanish": s, "english": ""} for s in sentences]
 
-    return jsonify(sentences)
+    conn = get_db()
+    cur = conn.cursor()
+
+    title = sentences[0][:40] if sentences else "Listening story"
+
+    cur.execute("""
+        INSERT INTO stories (title, topic, level, tense, content, mode)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        RETURNING id
+    """, (
+        title,
+        topic,
+        level,
+        tense,
+        json.dumps(story),
+        "listening"
+    ))
+
+    story_id = cur.fetchone()[0]
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({
+        "sentences": sentences,
+        "id": story_id
+    })
 
 # ------------------------
 # Run app
