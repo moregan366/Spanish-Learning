@@ -214,27 +214,33 @@ async function startListening() {
 }
 
 function speakSpanish(text) {
+    speechSynthesis.cancel(); // 🔥 always reset
+
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "es-ES";
 
-    function setVoiceAndSpeak() {
-        const voices = speechSynthesis.getVoices();
-        const spanishVoice = voices.find(v => v.lang.startsWith("es"));
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
 
-        if (spanishVoice) {
-            utterance.voice = spanishVoice;
-        }
+    const voices = speechSynthesis.getVoices();
 
-        speechSynthesis.speak(utterance);
+    // ✅ fallback: pick ANY voice if Spanish not found
+    let voice = voices.find(v => v.lang.startsWith("es"));
+
+    if (!voice && voices.length > 0) {
+        console.log("⚠️ No Spanish voice found, using default");
+        voice = voices[0];
     }
 
-    // ✅ If voices already loaded
-    if (speechSynthesis.getVoices().length > 0) {
-        setVoiceAndSpeak();
-    } else {
-        // ✅ Wait for voices to load (THIS is the fix)
-        speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
+    if (voice) {
+        utterance.voice = voice;
     }
+
+    // 🔍 debug (VERY important)
+    console.log("Speaking:", text);
+    console.log("Voice:", voice);
+
+    speechSynthesis.speak(utterance);
 }
 
 let currentIndex = 0;
@@ -248,8 +254,18 @@ function playListening(sentences) {
 }
 
 function playCurrent() {
-    speechSynthesis.cancel(); // 🔥 prevents silent failures
+    if (!listeningStory || listeningStory.length === 0) {
+        console.log("❌ No sentences loaded");
+        return;
+    }
+
     const sentence = listeningStory[currentIndex];
+
+    if (!sentence) {
+        console.log("❌ No sentence at index", currentIndex);
+        return;
+    }
+
     speakSpanish(sentence);
 }
 
