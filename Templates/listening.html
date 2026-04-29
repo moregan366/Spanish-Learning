@@ -330,6 +330,23 @@ async function exitListening() {
     document.getElementById("setup").style.display = "block";
 }
 
+async function loadListeningStories() {
+    const topic = document.getElementById("topic").value;
+    const level = document.getElementById("level").value;
+    const tense = document.getElementById("tense").value;
+
+    const res = await fetch(
+        `/get_stories?mode=listening&topic=${topic}&level=${level}&tense=${tense}`
+    );
+
+    const stories = await res.json();
+
+    console.log("Listening stories:", stories);
+
+    // 👉 For now just log them
+    // later you can render them like writing page
+}
+
 async function completeListening() {
 
     const res = await fetch("/complete_story", {
