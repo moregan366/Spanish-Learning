@@ -537,25 +537,31 @@ Return as JSON list like:
     import json
     text = response.choices[0].message.content.strip()
 
-    # Convert to structured format like writing
+    # ✅ Parse AI output safely
+    try:
+        sentences = json.loads(text)
+    except:
+        sentences = [s.strip() for s in text.split("\n") if s.strip()]
+
+    # ✅ Convert to story format (same as writing)
     story = [{"spanish": s, "english": ""} for s in sentences]
 
+    # ✅ Save to DB
     conn = get_db()
     cur = conn.cursor()
 
-    title = sentences[0][:40] if sentences else "Listening story"
+    title = sentences[0][:40] if sentences else "Listening exercise"
 
     cur.execute("""
-        INSERT INTO stories (title, topic, level, tense, content, mode)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO stories (title, topic, level, tense, content)
+        VALUES (%s, %s, %s, %s, %s)
         RETURNING id
     """, (
         title,
         topic,
         level,
         tense,
-        json.dumps(story),
-        "listening"
+        json.dumps(story)
     ))
 
     story_id = cur.fetchone()[0]
@@ -564,6 +570,7 @@ Return as JSON list like:
     cur.close()
     conn.close()
 
+    # ✅ Return BOTH sentences + id
     return jsonify({
         "sentences": sentences,
         "id": story_id
