@@ -102,7 +102,7 @@ button {
 
 <h1>Spanish Listening</h1>
 
-<div class="card">
+<div id="setup" class="card">
 
     <h3>Select Topic</h3>
     <select id="topic">
@@ -174,7 +174,15 @@ async function startListening() {
     const res = await fetch(`/generate_listening?topic=${topic}&level=${level}&tense=${tense}`);
     const sentences = await res.json();
 
-    playListening(sentences);
+    // 🔥 SHOW LISTENING UI
+    document.getElementById("setup").style.display = "none";
+    document.getElementById("listeningArea").style.display = "block";
+
+    // reset
+    listeningStory = sentences;
+    currentIndex = 0;
+
+    playCurrent();
 }
 
 function speakSpanish(text) {
@@ -220,6 +228,19 @@ async function checkDictation() {
 
     document.getElementById("feedback").innerText =
         data.correct ? "Correct ✅" : data.feedback;
+}
+
+function nextListening() {
+    currentIndex++;
+
+    if (currentIndex < listeningStory.length) {
+        document.getElementById("dictation").value = "";
+        document.getElementById("feedback").innerText = "";
+        playCurrent();
+    } else {
+        alert("Finished 🎉");
+        location.reload();
+    }
 }
 
 </script>
