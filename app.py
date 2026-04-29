@@ -237,6 +237,7 @@ def get_stories():
     topic = request.args.get("topic") or ""
     level = request.args.get("level") or ""
     tense = request.args.get("tense") or ""
+    mode = request.args.get("mode") or "writing"
 
     conn = get_db()
     cur = conn.cursor()
@@ -245,12 +246,13 @@ def get_stories():
         SELECT id, title, content, score, feedback, progress_index, progress_results
         FROM stories
         WHERE 
-            TRIM(LOWER(topic)) = TRIM(LOWER(%s))
+            mode = %s
+        AND TRIM(LOWER(topic)) = TRIM(LOWER(%s))
         AND TRIM(LOWER(level)) = TRIM(LOWER(%s))
         AND TRIM(LOWER(tense)) = TRIM(LOWER(%s))
         ORDER BY created_at DESC
         LIMIT 50
-    """, (topic, level, tense))
+    """, (mode, topic, level, tense))
 
     rows = cur.fetchall()
 
@@ -561,7 +563,8 @@ Return as JSON list like:
         topic,
         level,
         tense,
-        json.dumps(story)
+        json.dumps(story),
+        "listening"
     ))
 
     story_id = cur.fetchone()[0]
