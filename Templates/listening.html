@@ -139,6 +139,29 @@ button {
 
 </div>
 
+<!-- 🎧 LISTENING AREA (THIS IS WHAT YOU WERE MISSING) -->
+<div id="listeningArea" style="display:none;">
+
+    <div class="card">
+
+        <h3 id="listeningText">Listen carefully...</h3>
+
+        <!-- 🔊 Play -->
+        <button onclick="playCurrent()">▶️ Play</button>
+
+        <!-- ✍️ Dictation -->
+        <textarea id="dictation" placeholder="Type what you hear..."></textarea>
+
+        <br>
+
+        <button onclick="checkDictation()" class="primary">Check</button>
+        <button onclick="nextListening()" class="secondary">Next</button>
+        <button onclick="exitListening()" class="secondary">Exit</button>
+
+        <p id="feedback"></p>
+
+    </div>
+
 </div>
 
 <script>
@@ -152,6 +175,51 @@ async function startListening() {
     const sentences = await res.json();
 
     playListening(sentences);
+}
+
+function speakSpanish(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "es-ES";
+
+    const voices = speechSynthesis.getVoices();
+    const spanishVoice = voices.find(v => v.lang.startsWith("es"));
+
+    if (spanishVoice) {
+        utterance.voice = spanishVoice;
+    }
+
+    speechSynthesis.speak(utterance);
+}
+
+let currentIndex = 0;
+let listeningStory = [];
+
+function playListening(sentences) {
+    listeningStory = sentences;
+    currentIndex = 0;
+
+    playCurrent();
+}
+
+function playCurrent() {
+    const sentence = listeningStory[currentIndex];
+    speakSpanish(sentence);
+}
+
+async function checkDictation() {
+    const user = document.getElementById("dictation").value;
+    const correct = listeningStory[currentIndex];
+
+    const res = await fetch("/check_writing", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ user, correct })
+    });
+
+    const data = await res.json();
+
+    document.getElementById("feedback").innerText =
+        data.correct ? "Correct ✅" : data.feedback;
 }
 
 </script>
