@@ -202,7 +202,8 @@ async function startListening() {
     const data = await res.json();
 
     // ✅ NEW
-    listeningStory = data;
+    listeningStory = data.sentences;
+    currentStoryId = data.id;
     results = [];
     currentIndex = 0;
 
@@ -265,6 +266,8 @@ function playCurrent() {
     }
 
     const sentence = listeningStory[currentIndex];
+
+    console.log("Current sentence:", listeningStory[currentIndex]);
 
     if (!sentence) {
         console.log("❌ No sentence at index", currentIndex);
