@@ -217,14 +217,24 @@ function speakSpanish(text) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "es-ES";
 
-    const voices = speechSynthesis.getVoices();
-    const spanishVoice = voices.find(v => v.lang.startsWith("es"));
+    function setVoiceAndSpeak() {
+        const voices = speechSynthesis.getVoices();
+        const spanishVoice = voices.find(v => v.lang.startsWith("es"));
 
-    if (spanishVoice) {
-        utterance.voice = spanishVoice;
+        if (spanishVoice) {
+            utterance.voice = spanishVoice;
+        }
+
+        speechSynthesis.speak(utterance);
     }
 
-    speechSynthesis.speak(utterance);
+    // ✅ If voices already loaded
+    if (speechSynthesis.getVoices().length > 0) {
+        setVoiceAndSpeak();
+    } else {
+        // ✅ Wait for voices to load (THIS is the fix)
+        speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
+    }
 }
 
 let currentIndex = 0;
@@ -238,6 +248,7 @@ function playListening(sentences) {
 }
 
 function playCurrent() {
+    speechSynthesis.cancel(); // 🔥 prevents silent failures
     const sentence = listeningStory[currentIndex];
     speakSpanish(sentence);
 }
