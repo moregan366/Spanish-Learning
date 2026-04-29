@@ -448,6 +448,13 @@ def results_page():
     return render_template("results.html", score=score, feedback=feedback)
 
 # ------------------------
+# Spanish Listening Page
+# ------------------------
+@app.route("/listening")
+def listening():
+    return render_template("listening.html")
+
+# ------------------------
 # Delete Story
 # ------------------------
 @app.route("/delete_story/<int:id>", methods=["DELETE"])
