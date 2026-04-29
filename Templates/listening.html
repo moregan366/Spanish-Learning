@@ -214,33 +214,38 @@ async function startListening() {
 }
 
 function speakSpanish(text) {
-    speechSynthesis.cancel(); // 🔥 always reset
+    speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "es-ES";
+    const speak = () => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "es-ES";
+        utterance.rate = 0.9;
 
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
+        const voices = speechSynthesis.getVoices();
 
-    const voices = speechSynthesis.getVoices();
+        let voice = voices.find(v => v.lang.startsWith("es"));
 
-    // ✅ fallback: pick ANY voice if Spanish not found
-    let voice = voices.find(v => v.lang.startsWith("es"));
+        if (!voice && voices.length > 0) {
+            console.log("⚠️ No Spanish voice, using default");
+            voice = voices[0];
+        }
 
-    if (!voice && voices.length > 0) {
-        console.log("⚠️ No Spanish voice found, using default");
-        voice = voices[0];
+        if (voice) {
+            utterance.voice = voice;
+        }
+
+        console.log("Speaking:", text);
+        console.log("Voices available:", voices.length);
+
+        speechSynthesis.speak(utterance);
+    };
+
+    // ✅ KEY FIX
+    if (speechSynthesis.getVoices().length === 0) {
+        speechSynthesis.onvoiceschanged = speak;
+    } else {
+        speak();
     }
-
-    if (voice) {
-        utterance.voice = voice;
-    }
-
-    // 🔍 debug (VERY important)
-    console.log("Speaking:", text);
-    console.log("Voice:", voice);
-
-    speechSynthesis.speak(utterance);
 }
 
 let currentIndex = 0;
