@@ -202,8 +202,7 @@ async function startListening() {
     const data = await res.json();
 
     // ✅ NEW
-    listeningStory = data.sentences;
-    currentStoryId = data.id;
+    listeningStory = data;
     results = [];
     currentIndex = 0;
 
@@ -272,7 +271,7 @@ function nextListening() {
         document.getElementById("dictation").value = "";
         document.getElementById("feedback").innerText = "";
         playCurrent();
-    else {
+    } else {
         completeListening(); // instead of alert
     }
 }
