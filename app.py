@@ -496,9 +496,46 @@ def save_progress(id):
 # ------------------------
 # Spanish Listening
 # ------------------------
-@app.route("/listening")
-def listening():
-    return render_template("listening.html")
+@app.route("/generate_listening")
+def generate_listening():
+    topic = request.args.get("topic")
+    level = request.args.get("level")
+    tense = request.args.get("tense")
+
+    prompt = f"""
+You are creating a Spanish listening exercise.
+
+Level: {level}
+Topic: {topic}
+Tense: {tense}
+
+Requirements:
+
+- For A1–B1: simple, everyday sentences
+- For B2–C2: interesting, realistic, engaging content (news, stories, real-life situations)
+
+- Generate a short passage of 3–5 sentences
+- Sentences should be connected and natural
+- Spanish ONLY (no English)
+
+Return as JSON list like:
+["sentence 1", "sentence 2", ...]
+"""
+
+    response = client.chat.completions.create(
+        model="gpt-4.1-mini",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    import json
+    text = response.choices[0].message.content.strip()
+
+    try:
+        sentences = json.loads(text)
+    except:
+        sentences = [s.strip() for s in text.split("\n") if s.strip()]
+
+    return jsonify(sentences)
 
 # ------------------------
 # Run app
