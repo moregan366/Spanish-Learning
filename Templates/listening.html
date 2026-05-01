@@ -345,54 +345,37 @@ async function loadListeningStories() {
 
     const stories = await res.json();
 
-    console.log("Listening stories:", stories);
-
-    // 👉 For now just log them
-    // later you can render them like writing page
-}
-
-async function loadListeningStories() {
-    const topic = document.getElementById("topic").value;
-    const level = document.getElementById("level").value;
-    const tense = document.getElementById("tense").value;
-
-    const res = await fetch(
-        `/get_stories?mode=listening&topic=${topic}&level=${level}&tense=${tense}`
-    );
-
-    const stories = await res.json();
-
     renderStories(stories);
 }
 
 function renderStories(stories) {
+
     const container = document.getElementById("storiesList");
     container.innerHTML = "";
 
-    if (stories.length === 0) {
-        container.innerHTML = "<p>No listening exercises yet.</p>";
-        return;
-    }
+    stories.forEach(s => {
 
-    stories.forEach(story => {
         const div = document.createElement("div");
         div.className = "card";
-        div.style.marginTop = "15px";
-
-        let status = "";
-        let actionBtn = "";
-
-        if (story.score !== null) {
-            status = `<p>Score: ${story.score}%</p>`;
-        } else {
-            status = `<p>In progress...</p>`;
-            actionBtn = `<button onclick="resumeListening(${story.id})">Resume</button>`;
-        }
+        div.style.marginTop = "10px";
 
         div.innerHTML = `
-            <h4>${story.title}</h4>
-            ${status}
-            ${actionBtn}
+            <b>${s.title}</b><br>
+
+            ${s.score !== null && s.score !== undefined
+                ? `Score: ${s.score} ✅`
+                : `In progress...`}
+
+            <br><br>
+
+            <button onclick="resumeListening(${s.id})">
+                ▶ ${s.progress_index !== null ? "Resume" : "Replay"}
+            </button>
+
+            <button onclick="deleteStory(${s.id})"
+                style="margin-left:10px; background:#ef4444; color:white;">
+                🗑 Delete
+            </button>
         `;
 
         container.appendChild(div);
@@ -401,6 +384,20 @@ function renderStories(stories) {
 
 function resumeListening(id) {
     window.location.href = `/listening_resume?id=${id}`;
+}
+
+async function deleteStory(id) {
+
+    if (!confirm("Are you sure you want to delete this story?")) {
+        return;
+    }
+
+    await fetch(`/delete_story/${id}`, {
+        method: "DELETE"
+    });
+
+    // reload list after delete
+    await loadListeningStories();
 }
 
 async function completeListening() {
