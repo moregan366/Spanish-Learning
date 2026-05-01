@@ -274,7 +274,11 @@ function playCurrent() {
         return;
     }
 
-    const sentence = listeningStory[currentIndex];
+    let sentence = listeningStory[currentIndex];
+
+    if (typeof sentence === "object") {
+        sentence = sentence.spanish;
+    }
 
     console.log("Current sentence:", listeningStory[currentIndex]);
 
@@ -288,7 +292,12 @@ function playCurrent() {
 
 async function checkDictation() {
     const user = document.getElementById("dictation").value;
-    const correct = listeningStory[currentIndex];
+    let correct = listeningStory[currentIndex];
+
+    // ✅ handle both formats
+    if (typeof correct === "object") {
+        correct = correct.spanish;
+    }
 
     const res = await fetch("/check_writing", {
         method: "POST",
