@@ -580,6 +580,47 @@ Return as JSON list like:
     })
 
 # ------------------------
+# Resume Listening Stories
+# ------------------------
+@app.route("/listening_resume")
+def listening_resume():
+    story_id = request.args.get("id")
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT content, progress_index, progress_results
+        FROM stories
+        WHERE id = %s
+    """, (story_id,))
+
+    row = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    if not row:
+        return "Story not found", 404
+
+    content, index, results = row
+
+    # handle JSON safely
+    if isinstance(content, str):
+        content = json.loads(content)
+
+    if isinstance(results, str):
+        results = json.loads(results)
+
+    return render_template(
+        "listening.html",
+        resume_story=content,
+        resume_index=index or 0,
+        resume_results=results or [],
+        resume_id=story_id
+    )
+
+# ------------------------
 # Run app
 # ------------------------
 if __name__ == "__main__":
