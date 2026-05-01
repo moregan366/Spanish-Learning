@@ -157,7 +157,7 @@ button {
 
     <br><br>
 
-    <button class="primary" onclick="startListening()">
+    <button id="startBtn" class="primary" onclick="startListening()">
         Start Listening
     </button>
 
@@ -213,6 +213,11 @@ let currentStoryId = null;
 let results = [];
     
 async function startListening() {
+
+    const btn = document.getElementById("startBtn");
+    btn.innerText = "Generating...";
+    btn.disabled = true;
+
     const topic = document.getElementById("topic").value;
     const level = document.getElementById("level").value;
     const tense = document.getElementById("tense").value;
