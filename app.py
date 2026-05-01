@@ -555,8 +555,8 @@ Return as JSON list like:
     title = sentences[0][:40] if sentences else "Listening exercise"
 
     cur.execute("""
-        INSERT INTO stories (title, topic, level, tense, content)
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO stories (title, topic, level, tense, content, mode)
+        VALUES (%s, %s, %s, %s, %s, %s)
         RETURNING id
     """, (
         title,
