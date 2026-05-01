@@ -192,6 +192,11 @@ button {
 
 <script>
 
+const resume_story = {{ resume_story|tojson if resume_story else 'null' }};
+const resume_index = {{ resume_index if resume_index else 0 }};
+const resume_results = {{ resume_results|tojson if resume_results else '[]' }};
+const resume_id = {{ resume_id if resume_id else 'null' }};
+
 let currentStoryId = null;
 let results = [];
     
@@ -420,7 +425,20 @@ async function completeListening() {
 }
 
     window.onload = () => {
-        loadListeningStories();
+
+        if (typeof resume_story !== "undefined") {
+            listeningStory = resume_story;
+            currentIndex = resume_index;
+            results = resume_results;
+            currentStoryId = resume_id;
+
+            document.getElementById("setup").style.display = "none";
+            document.getElementById("listeningArea").style.display = "block";
+
+            playCurrent();
+        } else {
+            loadListeningStories();
+        }
     };
 
 </script>
