@@ -580,6 +580,22 @@ Return as JSON list like:
     })
 
 # ------------------------
+# Delete Listening Story
+# ------------------------
+@app.route("/delete_story/<int:story_id>", methods=["DELETE"])
+def delete_story(story_id):
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("DELETE FROM stories WHERE id = %s", (story_id,))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({"status": "deleted"})
+
+# ------------------------
 # Run app
 # ------------------------
 if __name__ == "__main__":
