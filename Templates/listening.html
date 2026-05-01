@@ -128,6 +128,30 @@ button {
 
 <div id="setup" class="card">
 
+    <div class="card" style="margin-top:20px; border-left:6px solid #3b82f6;">
+
+        <h3>
+            📰 Spanish News Listening
+            <span style="background:#dbeafe; color:#1d4ed8; padding:4px 8px; border-radius:6px; font-size:12px; margin-left:10px;">
+                Advanced
+            </span>
+        </h3>
+
+        <p style="color:#6b7280;">
+            Listen to a realistic news-style report and write what you hear.
+            Designed for advanced learners (B2+).
+        </p>
+
+        <p style="font-style:italic; color:#374151;">
+            “Hoy en las noticias…”
+        </p>
+
+        <button class="primary" onclick="startNewsListening()" style="background:#3b82f6;">
+            🎧 Start News Report
+        </button>
+
+    </div>
+
     <h3>Select Topic</h3>
     <select id="topic">
         <option>Travel</option>
@@ -445,6 +469,27 @@ function insertChar(char) {
 
     textarea.focus();
     textarea.selectionStart = textarea.selectionEnd = start + 1;
+}
+
+async function startNewsListening() {
+
+    const btn = event.target;
+    btn.innerText = "Generating news...";
+    btn.disabled = true;
+
+    const res = await fetch("/generate_news");
+    const data = await res.json();
+
+    listeningStory = data.sentences;
+    currentStoryId = data.id;
+    results = [];
+    currentIndex = 0;
+
+    document.getElementById("setup").style.display = "none";
+    document.getElementById("storiesList").style.display = "none";
+    document.getElementById("listeningArea").style.display = "block";
+
+    playCurrent();
 }
 
 async function completeListening() {
