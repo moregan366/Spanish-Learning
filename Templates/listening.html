@@ -163,6 +163,8 @@ button {
 
 </div>
 
+<div id="storiesList" style="margin-top:20px;"></div>
+
 <!-- 🎧 LISTENING AREA (THIS IS WHAT YOU WERE MISSING) -->
 <div id="listeningArea" style="display:none;">
 
@@ -200,6 +202,8 @@ async function startListening() {
 
     const res = await fetch(`/generate_listening?topic=${topic}&level=${level}&tense=${tense}`);
     const data = await res.json();
+
+    await loadListeningStories();
 
     // ✅ NEW
     listeningStory = data.sentences;
@@ -347,6 +351,58 @@ async function loadListeningStories() {
     // later you can render them like writing page
 }
 
+async function loadListeningStories() {
+    const topic = document.getElementById("topic").value;
+    const level = document.getElementById("level").value;
+    const tense = document.getElementById("tense").value;
+
+    const res = await fetch(
+        `/get_stories?mode=listening&topic=${topic}&level=${level}&tense=${tense}`
+    );
+
+    const stories = await res.json();
+
+    renderStories(stories);
+}
+
+function renderStories(stories) {
+    const container = document.getElementById("storiesList");
+    container.innerHTML = "";
+
+    if (stories.length === 0) {
+        container.innerHTML = "<p>No listening exercises yet.</p>";
+        return;
+    }
+
+    stories.forEach(story => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.style.marginTop = "15px";
+
+        let status = "";
+        let actionBtn = "";
+
+        if (story.score !== null) {
+            status = `<p>Score: ${story.score}%</p>`;
+        } else {
+            status = `<p>In progress...</p>`;
+            actionBtn = `<button onclick="resumeListening(${story.id})">Resume</button>`;
+        }
+
+        div.innerHTML = `
+            <h4>${story.title}</h4>
+            ${status}
+            ${actionBtn}
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+function resumeListening(id) {
+    window.location.href = `/listening_resume?id=${id}`;
+}
+
 async function completeListening() {
 
     const res = await fetch("/complete_story", {
@@ -365,6 +421,10 @@ async function completeListening() {
     window.location.href =
         `/results?score=${data.score}&feedback=${encodeURIComponent(data.feedback)}`;
 }
+
+    window.onload = () => {
+        loadListeningStories();
+    };
 
 </script>
 
