@@ -178,6 +178,18 @@ button {
         <!-- ✍️ Dictation -->
         <textarea id="dictation" class="dictation-box" placeholder="Type what you hear..."></textarea>
 
+        <div style="margin-top:10px;">
+            <button onclick="insertChar('á')">á</button>
+            <button onclick="insertChar('é')">é</button>
+            <button onclick="insertChar('í')">í</button>
+            <button onclick="insertChar('ó')">ó</button>
+            <button onclick="insertChar('ú')">ú</button>
+            <button onclick="insertChar('ñ')">ñ</button>
+            <button onclick="insertChar('ü')">ü</button>
+            <button onclick="insertChar('¿')">¿</button>
+            <button onclick="insertChar('¡')">¡</button>
+        </div>
+
         <br>
 
         <button onclick="checkDictation()" class="primary">Check</button>
@@ -412,6 +424,20 @@ async function deleteStory(id) {
 
     // reload list after delete
     await loadListeningStories();
+}
+
+function insertChar(char) {
+    const textarea = document.getElementById("dictation");
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    textarea.value =
+        textarea.value.substring(0, start) +
+        char +
+        textarea.value.substring(end);
+
+    textarea.focus();
+    textarea.selectionStart = textarea.selectionEnd = start + 1;
 }
 
 async function completeListening() {
