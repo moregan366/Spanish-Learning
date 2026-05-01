@@ -5,6 +5,33 @@ import os
 import json
 import psycopg2
 import random
+import requests
+import base64
+
+def generate_elevenlabs_audio(text):
+
+    api_key = os.getenv("ELEVENLABS_API_KEY")
+
+    voice_id = "EXAVITQu4vr4xnSDxMaL"  # default (Rachel)
+
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+
+    headers = {
+        "xi-api-key": api_key,
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "text": text,
+        "model_id": "eleven_multilingual_v2"
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+
+    audio_bytes = response.content
+    audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
+
+    return audio_base64
 
 from openai import OpenAI
 
@@ -507,6 +534,10 @@ def save_progress(id):
 # ------------------------
 @app.route("/generate_listening")
 def generate_listening():
+    voice = request.args.get("voice") or "standard"
+    gender = request.args.get("gender")
+    country = request.args.get("country")
+    region = request.args.get("region")
     topic = request.args.get("topic")
     level = request.args.get("level")
     tense = request.args.get("tense")
@@ -573,16 +604,28 @@ Return as JSON list like:
     cur.close()
     conn.close()
 
-    # ✅ Return BOTH sentences + id
+    if voice == "elevenlabs":
+        full_text = " ".join(sentences)
+        audio = generate_elevenlabs_audio(full_text)
+    else:
+        audio = None
+
     return jsonify({
         "sentences": sentences,
-        "id": story_id
+        "id": story_id,
+        "audio": audio,
+        "voice": voice
     })
+
 # ------------------------
 # Generate Listeing News Stories
 # ------------------------
 @app.route("/generate_news")
 def generate_news():
+    voice = request.args.get("voice") or "standard"
+    gender = request.args.get("gender")
+    country = request.args.get("country")
+    region = request.args.get("region")
 
     import json
     from openai import OpenAI
@@ -643,9 +686,17 @@ def generate_news():
     cur.close()
     conn.close()
 
+    if voice == "elevenlabs":
+        full_text = " ".join(sentences)
+        audio = generate_elevenlabs_audio(full_text)
+    else:
+        audio = None
+
     return jsonify({
         "sentences": sentences,
-        "id": story_id
+        "id": story_id,
+        "audio": audio,
+        "voice": voice
     })
 
 # ------------------------
