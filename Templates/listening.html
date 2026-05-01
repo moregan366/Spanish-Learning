@@ -426,7 +426,8 @@ async function completeListening() {
 
     window.onload = () => {
 
-        if (typeof resume_story !== "undefined") {
+        if (resume_story && resume_story.length > 0) {
+
             listeningStory = resume_story;
             currentIndex = resume_index;
             results = resume_results;
@@ -436,6 +437,7 @@ async function completeListening() {
             document.getElementById("listeningArea").style.display = "block";
 
             playCurrent();
+
         } else {
             loadListeningStories();
         }
