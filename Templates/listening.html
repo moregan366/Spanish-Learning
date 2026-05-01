@@ -230,6 +230,7 @@ async function startListening() {
 
     // ✅ switch UI
     document.getElementById("setup").style.display = "none";
+    document.getElementById("storiesList").style.display = "none"; 
     document.getElementById("listeningArea").style.display = "block";
 
     playCurrent();
@@ -357,6 +358,7 @@ async function exitListening() {
     }
 
     document.getElementById("listeningArea").style.display = "none";
+    document.getElementById("storiesList").style.display = "block";
     document.getElementById("setup").style.display = "block";
 }
 
@@ -395,7 +397,7 @@ function renderStories(stories) {
             <br><br>
 
             <button onclick="resumeListening(${s.id})">
-                ▶ ${s.progress_index !== null ? "Resume" : "Replay"}
+                ▶ ${s.score !== null && s.score !== undefined ? "Replay" : "Resume"}
             </button>
 
             <button onclick="deleteStory(${s.id})"
