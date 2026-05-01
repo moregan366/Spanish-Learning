@@ -181,6 +181,38 @@ button {
 
     <br><br>
 
+    <h3>Voice</h3>
+
+    <select id="voiceEngine" onchange="toggleVoiceOptions()">
+        <option value="standard">Standard</option>
+        <option value="elevenlabs">ElevenLabs</option>
+    </select>
+
+    <!-- ElevenLabs options -->
+    <div id="elevenlabsOptions" style="display:none; margin-top:10px;">
+
+        <h4>Gender</h4>
+        <select id="voiceGender">
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+        </select>
+
+        <h4>Country</h4>
+        <select id="voiceCountry">
+            <option value="spain">Spain</option>
+            <option value="mexico">Mexico</option>
+            <option value="argentina">Argentina</option>
+        </select>
+
+        <h4>Region (optional)</h4>
+        <select id="voiceRegion">
+            <option value="">Default</option>
+            <option value="madrid">Madrid</option>
+            <option value="andalusia">Andalusia</option>
+        </select>
+
+    </div>
+    
     <button id="startBtn" class="primary" onclick="startListening()">
         Start Listening
     </button>
@@ -242,12 +274,18 @@ async function startListening() {
     btn.innerText = "Generating...";
     btn.disabled = true;
 
+    const voiceEngine = document.getElementById("voiceEngine").value;
+    const gender = document.getElementById("voiceGender")?.value;
+    const country = document.getElementById("voiceCountry")?.value;
+    const region = document.getElementById("voiceRegion")?.value;
     const topic = document.getElementById("topic").value;
     const level = document.getElementById("level").value;
     const tense = document.getElementById("tense").value;
 
-    const res = await fetch(`/generate_listening?topic=${topic}&level=${level}&tense=${tense}`);
-    const data = await res.json();
+    const res = await fetch(
+        `/generate_listening?topic=${topic}&level=${level}&tense=${tense}&voice=${voiceEngine}&gender=${gender}&country=${country}&region=${region}`
+    );
+     const data = await res.json();
 
     await loadListeningStories();
 
@@ -477,6 +515,10 @@ async function startNewsListening() {
     btn.innerText = "Generating news...";
     btn.disabled = true;
 
+    const voiceEngine = document.getElementById("voiceEngine").value;
+    const gender = document.getElementById("voiceGender")?.value;
+    const country = document.getElementById("voiceCountry")?.value;
+    const region = document.getElementById("voiceRegion")?.value;
     const res = await fetch("/generate_news");
     const data = await res.json();
 
@@ -490,6 +532,12 @@ async function startNewsListening() {
     document.getElementById("listeningArea").style.display = "block";
 
     playCurrent();
+}
+
+function toggleVoiceOptions() {
+    const engine = document.getElementById("voiceEngine").value;
+    document.getElementById("elevenlabsOptions").style.display =
+        engine === "elevenlabs" ? "block" : "none";
 }
 
 async function completeListening() {
