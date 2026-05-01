@@ -300,8 +300,15 @@ async function startListening() {
     document.getElementById("storiesList").style.display = "none"; 
     document.getElementById("listeningArea").style.display = "block";
 
-    playCurrent();
-}
+    // 🔊 Play audio depending on mode
+    if (data.voice === "elevenlabs" && data.audio) {
+
+        const audio = new Audio("data:audio/mpeg;base64," + data.audio);
+        audio.play();
+
+    } else {
+        playCurrent(); // fallback to browser speech
+    }
 
 function speakSpanish(text) {
     speechSynthesis.cancel();
@@ -531,8 +538,15 @@ async function startNewsListening() {
     document.getElementById("storiesList").style.display = "none";
     document.getElementById("listeningArea").style.display = "block";
 
-    playCurrent();
-}
+    // 🔊 Play audio depending on mode
+    if (data.voice === "elevenlabs" && data.audio) {
+
+        const audio = new Audio("data:audio/mpeg;base64," + data.audio);
+        audio.play();
+
+    } else {
+        playCurrent(); // fallback to browser speech
+    }
 
 function toggleVoiceOptions() {
     const engine = document.getElementById("voiceEngine").value;
