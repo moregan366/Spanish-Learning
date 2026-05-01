@@ -578,6 +578,11 @@ Return as JSON list like:
         "sentences": sentences,
         "id": story_id
     })
+# ------------------------
+# Generate Listeing News Stories
+# ------------------------
+@app.route("/generate_news")
+def generate_news():
 
 # ------------------------
 # Resume Listening Stories
