@@ -584,6 +584,70 @@ Return as JSON list like:
 @app.route("/generate_news")
 def generate_news():
 
+    import json
+    from openai import OpenAI
+    client = OpenAI()
+
+    # 🔹 Prompt (BBC-style Spanish)
+    prompt = """
+    Create a Spanish news report for a language learner (B2-C1 level).
+
+    Requirements:
+    - Topic: current world news (politics, economy, environment, etc.)
+    - Style: like a BBC news presenter
+    - Tone: formal, clear, professional
+    - Length: 5–7 sentences
+    - Use natural spoken Spanish
+
+    Return ONLY a JSON array of sentences.
+    Example:
+    ["Sentence 1", "Sentence 2", "Sentence 3"]
+    """
+
+    response = client.chat.completions.create(
+        model="gpt-5.3",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7
+    )
+
+    content = response.choices[0].message.content
+
+    try:
+        sentences = json.loads(content)
+    except:
+        # fallback if model slightly misbehaves
+        sentences = [s.strip() for s in content.split(".") if s.strip()]
+
+    # 🔹 Save to DB (IMPORTANT: include mode)
+    conn = get_db()
+    cur = conn.cursor()
+
+    title = sentences[0][:50] if sentences else "News report"
+
+    cur.execute("""
+        INSERT INTO stories (title, topic, level, tense, content, mode)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        RETURNING id
+    """, (
+        title,
+        "news",          # topic
+        "advanced",      # level
+        "mixed",         # tense
+        json.dumps(sentences),
+        "news"           # 🔥 THIS IS KEY
+    ))
+
+    story_id = cur.fetchone()[0]
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({
+        "sentences": sentences,
+        "id": story_id
+    })
+
 # ------------------------
 # Resume Listening Stories
 # ------------------------
