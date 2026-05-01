@@ -82,8 +82,20 @@ body {
         <div class="score">Score: {{ score }}%</div>
 
         <p>{{ feedback }}</p>
+
+        <br>
+        <button onclick="goBack()" class="primary">
+            ⬅ Back to Listening
+        </button>
     </div>
 </div>
 
 </body>
+    
+<script>
+function goBack() {
+    window.location.href = "/listening";
+}
+</script>  
+    
 </html>
