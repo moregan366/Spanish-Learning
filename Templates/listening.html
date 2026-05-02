@@ -67,7 +67,10 @@ button { padding: 10px 15px; border-radius: 8px; border: none; cursor: pointer; 
 
     <div class="card" style="border-left:6px solid #3b82f6;">
         <h3>📰 Spanish News Listening</h3>
-        <button onclick="startNewsListening()" style="background:#3b82f6;color:white;">Start News</button>
+        <button class="primary" onclick="startNewsListening()" style="background:#3b82f6;">
+        🎧 Start News Report
+    </button>
+
     </div>
 
     <h3>Topic</h3>
@@ -106,7 +109,9 @@ button { padding: 10px 15px; border-radius: 8px; border: none; cursor: pointer; 
         </select>
     </div>
 
-    <button id="startBtn" onclick="startListening()">Start Listening</button>
+    <button id="startBtn" class="primary" onclick="startListening()">
+        Start Listening
+    </button>
 
 </div>
 
@@ -262,20 +267,38 @@ async function loadListeningStories() {
 }
 
 function renderStories(stories) {
-    const c = document.getElementById("storiesList");
-    c.innerHTML = "";
+
+    const container = document.getElementById("storiesList");
+    container.innerHTML = "";
 
     stories.forEach(s => {
+
         const div = document.createElement("div");
         div.className = "card";
+        div.style.marginTop = "10px";
+
+        const isComplete = s.score !== null && s.score !== undefined;
+
         div.innerHTML = `
             <b>${s.title}</b><br>
-            ${s.score ? `Score: ${s.score}` : "In progress"}
-            <br>
-            <button onclick="resumeListening(${s.id})">▶ Resume</button>
-            <button onclick="deleteStory(${s.id})">Delete</button>
+
+            ${isComplete
+                ? `Score: ${s.score} ✅`
+                : `In progress...`}
+
+            <br><br>
+
+            <button class="primary" onclick="resumeListening(${s.id})">
+                ▶ ${isComplete ? "Replay" : "Resume"}
+            </button>
+
+            <button onclick="deleteStory(${s.id})"
+                style="margin-left:10px; background:#ef4444; color:white;">
+                🗑 Delete
+            </button>
         `;
-        c.appendChild(div);
+
+        container.appendChild(div);
     });
 }
 
