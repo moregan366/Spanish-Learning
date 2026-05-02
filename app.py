@@ -8,11 +8,60 @@ import random
 import requests
 import base64
 
-def generate_elevenlabs_audio(text):
+VOICE_MAP = {
+    "spain": {
+        "female": {
+            "default": "SPANISH_FEMALE_ID",
+            "madrid": "SPANISH_MADRID_ID",
+            "andalusia": "SPANISH_ANDALUSIA_ID"
+        },
+        "male": {
+            "default": "SPANISH_MALE_ID"
+        }
+    },
+    "mexico": {
+        "female": {
+            "default": "MEXICO_FEMALE_ID"
+        },
+        "male": {
+            "default": "MEXICO_MALE_ID"
+        }
+    },
+    "argentina": {
+        "female": {
+            "default": "ARG_FEMALE_ID"
+        },
+        "male": {
+            "default": "ARG_MALE_ID"
+        }
+    }
+}
+
+def get_voice_id(country, gender, region):
+    country = (country or "spain").lower()
+    gender = (gender or "female").lower()
+    region = (region or "default").lower()
+
+    try:
+        voices = VOICE_MAP[country][gender]
+
+        # region-specific if exists
+        if region in voices:
+            return voices[region]
+
+        return voices["default"]
+
+    except KeyError:
+        # fallback (VERY important)
+        return "EXAVITQu4vr4xnSDxMaL"
+
+def generate_elevenlabs_audio(text, country, gender, region):
 
     api_key = os.getenv("ELEVENLABS_API_KEY")
+    if not api_key:
+        return None
 
-    voice_id = "EXAVITQu4vr4xnSDxMaL"  # default (Rachel)
+    voice_id = get_voice_id(country, gender, region)
 
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
 
@@ -23,13 +72,18 @@ def generate_elevenlabs_audio(text):
 
     data = {
         "text": text,
-        "model_id": "eleven_multilingual_v2"
+        "model_id": "eleven_multilingual_v2",
+        "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.8,
+            "style": 0.3,
+            "use_speaker_boost": True
+        }
     }
 
     response = requests.post(url, json=data, headers=headers)
 
-    audio_bytes = response.content
-    audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
+    audio_base64 = base64.b64encode(response.content).decode("utf-8")
 
     return audio_base64
 
@@ -606,7 +660,7 @@ Return as JSON list like:
 
     if voice == "elevenlabs":
         full_text = " ".join(sentences)
-        audio = generate_elevenlabs_audio(full_text)
+        audio = generate_elevenlabs_audio(full_text, country, gender, region)
     else:
         audio = None
 
@@ -688,7 +742,7 @@ def generate_news():
 
     if voice == "elevenlabs":
         full_text = " ".join(sentences)
-        audio = generate_elevenlabs_audio(full_text)
+        audio = generate_elevenlabs_audio(full_text, country, gender, region)
     else:
         audio = None
 
