@@ -4,8 +4,6 @@
 <title>Spanish Listening</title>
 
 <style>
-
-/* SAME SIDEBAR */
 .sidebar {
     width: 220px;
     height: 100vh;
@@ -16,47 +14,14 @@
     top: 0;
     padding: 20px;
 }
-
-.logo {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 40px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
+.logo { font-size: 20px; font-weight: bold; margin-bottom: 40px; display: flex; gap: 10px; }
 .logo img { width: 30px; }
+.nav a { display: block; color: #9ca3af; margin: 10px 0; padding: 10px; border-radius: 8px; text-decoration: none; }
+.nav a:hover, .nav a.active { background: #374151; color: white; }
 
-.nav a {
-    display: block;
-    color: #9ca3af;
-    text-decoration: none;
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 8px;
-}
+body { margin: 0; font-family: Arial; background: #f5f7fb; display: flex; }
+.main { margin-left: 240px; padding: 40px; width: 100%; }
 
-.nav a:hover, .nav a.active {
-    background: #374151;
-    color: white;
-}
-
-/* MAIN */
-body {
-    margin: 0;
-    font-family: Arial;
-    background: #f5f7fb;
-    display: flex;
-}
-
-.main {
-    margin-left: 240px;
-    padding: 40px;
-    width: 100%;
-}
-
-/* CARD */
 .card {
     background: white;
     padding: 25px;
@@ -64,18 +29,9 @@ body {
     box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
-button {
-    padding: 10px 15px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    margin-top: 15px;
-}
+button { padding: 10px 15px; border-radius: 8px; border: none; cursor: pointer; margin-top: 15px; }
 
-.primary {
-    background: linear-gradient(135deg, #f97316, #ec4899);
-    color: white;
-}
+.primary { background: linear-gradient(135deg, #f97316, #ec4899); color: white; }
 
 .dictation-box {
     width: 100%;
@@ -85,29 +41,16 @@ button {
     border-radius: 10px;
     border: 1px solid #ddd;
     font-size: 16px;
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-    line-height: 1.5;
-    resize: vertical;
 }
-
-.dictation-box:focus {
-    outline: none;
-    border-color: #ec4899;
-    box-shadow: 0 0 0 2px rgba(236,72,153,0.2);
-}
-
 </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
     <div class="logo">
-        <img src="https://flagcdn.com/w40/es.png">
-        Spanish
+        <img src="https://flagcdn.com/w40/es.png"> Spanish
     </div>
-
     <div class="nav">
         <a href="/">Flashcards</a>
         <a href="/quiz">Quiz</a>
@@ -116,19 +59,18 @@ button {
     </div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
 <h1>Spanish Listening</h1>
 
 <div id="setup" class="card">
 
-    <div class="card" style="margin-top:20px; border-left:6px solid #3b82f6;">
+    <div class="card" style="border-left:6px solid #3b82f6;">
         <h3>📰 Spanish News Listening</h3>
-        <button class="primary" onclick="startNewsListening()">🎧 Start News Report</button>
+        <button onclick="startNewsListening()" style="background:#3b82f6;color:white;">Start News</button>
     </div>
 
-    <h3>Select Topic</h3>
+    <h3>Topic</h3>
     <select id="topic">
         <option>Travel</option>
         <option>Business</option>
@@ -136,17 +78,13 @@ button {
         <option>Daily Life</option>
     </select>
 
-    <h3>Select Level</h3>
+    <h3>Level</h3>
     <select id="level">
-        <option>A1</option>
-        <option>A2</option>
-        <option>B1</option>
-        <option>B2</option>
-        <option>C1</option>
-        <option>C2</option>
+        <option>A1</option><option>A2</option><option>B1</option>
+        <option>B2</option><option>C1</option><option>C2</option>
     </select>
 
-    <h3>Select Tense</h3>
+    <h3>Tense</h3>
     <select id="tense">
         <option value="present">Present</option>
         <option value="preterite">Preterite</option>
@@ -168,27 +106,29 @@ button {
         </select>
     </div>
 
-    <button id="startBtn" class="primary" onclick="startListening()">
-        Start Listening
-    </button>
+    <button id="startBtn" onclick="startListening()">Start Listening</button>
 
 </div>
 
-<div id="storiesList"></div>
+<div id="storiesList" style="margin-top:20px;"></div>
 
 <div id="listeningArea" style="display:none;">
     <div class="card">
-
-        <button onclick="playCurrent()">▶️ Play</button>
+        <button onclick="playCurrent()">▶ Play</button>
 
         <textarea id="dictation" class="dictation-box"></textarea>
+
+        <div>
+            <button onclick="insertChar('á')">á</button>
+            <button onclick="insertChar('é')">é</button>
+            <button onclick="insertChar('ñ')">ñ</button>
+        </div>
 
         <button onclick="checkDictation()">Check</button>
         <button onclick="nextListening()">Next</button>
         <button onclick="exitListening()">Exit</button>
 
         <p id="feedback"></p>
-
     </div>
 </div>
 
@@ -199,17 +139,17 @@ let currentIndex = 0;
 let currentStoryId = null;
 let results = [];
 
-// ---------------- START LISTENING ----------------
+// ---------------- START ----------------
 async function startListening() {
 
     const btn = document.getElementById("startBtn");
     btn.innerText = "Generating...";
     btn.disabled = true;
 
-    const voice = document.getElementById("voiceEngine").value;
-    const topic = document.getElementById("topic").value;
-    const level = document.getElementById("level").value;
-    const tense = document.getElementById("tense").value;
+    const topic = topicEl().value;
+    const level = levelEl().value;
+    const tense = tenseEl().value;
+    const voice = voiceEl().value;
 
     const res = await fetch(`/generate_listening?topic=${topic}&level=${level}&tense=${tense}&voice=${voice}`);
     const data = await res.json();
@@ -219,14 +159,9 @@ async function startListening() {
     currentIndex = 0;
     results = [];
 
-    document.getElementById("setup").style.display = "none";
-    document.getElementById("listeningArea").style.display = "block";
+    showListeningUI();
 
-    if (data.voice === "elevenlabs" && data.audio) {
-        new Audio("data:audio/mpeg;base64," + data.audio).play();
-    } else {
-        playCurrent();
-    }
+    playAudio(data);
 
     btn.innerText = "Start Listening";
     btn.disabled = false;
@@ -235,7 +170,9 @@ async function startListening() {
 // ---------------- NEWS ----------------
 async function startNewsListening() {
 
-    const res = await fetch("/generate_news");
+    const voice = voiceEl().value;
+
+    const res = await fetch(`/generate_news?voice=${voice}`);
     const data = await res.json();
 
     listeningStory = data.sentences;
@@ -243,9 +180,12 @@ async function startNewsListening() {
     currentIndex = 0;
     results = [];
 
-    document.getElementById("setup").style.display = "none";
-    document.getElementById("listeningArea").style.display = "block";
+    showListeningUI();
+    playAudio(data);
+}
 
+// ---------------- AUDIO ----------------
+function playAudio(data) {
     if (data.voice === "elevenlabs" && data.audio) {
         new Audio("data:audio/mpeg;base64," + data.audio).play();
     } else {
@@ -253,39 +193,31 @@ async function startNewsListening() {
     }
 }
 
-// ---------------- SPEECH ----------------
-function speakSpanish(text) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "es-ES";
-    speechSynthesis.speak(utterance);
-}
-
+// ---------------- PLAY ----------------
 function playCurrent() {
     if (!listeningStory.length) return;
-
-    let sentence = listeningStory[currentIndex];
-    if (typeof sentence === "object") sentence = sentence.spanish;
-
-    speakSpanish(sentence);
+    let s = listeningStory[currentIndex];
+    if (typeof s === "object") s = s.spanish;
+    speechSynthesis.speak(new SpeechSynthesisUtterance(s));
 }
 
 // ---------------- CHECK ----------------
 async function checkDictation() {
-
-    const user = document.getElementById("dictation").value;
     let correct = listeningStory[currentIndex];
-
     if (typeof correct === "object") correct = correct.spanish;
 
     const res = await fetch("/check_writing", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ user, correct })
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            user: dictationEl().value,
+            correct
+        })
     });
 
     const data = await res.json();
 
-    document.getElementById("feedback").innerText =
+    feedbackEl().innerText =
         data.correct ? "Correct ✅" : data.feedback;
 }
 
@@ -293,11 +225,28 @@ async function checkDictation() {
 function nextListening() {
     currentIndex++;
     if (currentIndex < listeningStory.length) {
-        document.getElementById("dictation").value = "";
+        dictationEl().value = "";
+        feedbackEl().innerText = "";
         playCurrent();
     } else {
-        alert("Finished!");
+        completeListening();
     }
+}
+
+// ---------------- COMPLETE ----------------
+async function completeListening() {
+    const res = await fetch("/complete_story", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            results,
+            topic: topicEl().value,
+            level: levelEl().value,
+            tense: tenseEl().value
+        })
+    });
+    const data = await res.json();
+    window.location.href = `/results?score=${data.score}&feedback=${encodeURIComponent(data.feedback)}`;
 }
 
 // ---------------- EXIT ----------------
@@ -305,12 +254,68 @@ function exitListening() {
     location.reload();
 }
 
-// ---------------- UI ----------------
-function toggleVoiceOptions() {
-    const engine = document.getElementById("voiceEngine").value;
-    document.getElementById("elevenlabsOptions").style.display =
-        engine === "elevenlabs" ? "block" : "none";
+// ---------------- STORIES ----------------
+async function loadListeningStories() {
+    const res = await fetch(`/get_stories?mode=listening&topic=${topicEl().value}&level=${levelEl().value}&tense=${tenseEl().value}`);
+    const stories = await res.json();
+    renderStories(stories);
 }
+
+function renderStories(stories) {
+    const c = document.getElementById("storiesList");
+    c.innerHTML = "";
+
+    stories.forEach(s => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+            <b>${s.title}</b><br>
+            ${s.score ? `Score: ${s.score}` : "In progress"}
+            <br>
+            <button onclick="resumeListening(${s.id})">▶ Resume</button>
+            <button onclick="deleteStory(${s.id})">Delete</button>
+        `;
+        c.appendChild(div);
+    });
+}
+
+function resumeListening(id) {
+    window.location.href = `/listening_resume?id=${id}`;
+}
+
+async function deleteStory(id) {
+    if (!confirm("Delete?")) return;
+    await fetch(`/delete_story/${id}`, {method:"DELETE"});
+    loadListeningStories();
+}
+
+// ---------------- HELPERS ----------------
+function insertChar(c){
+    const t = dictationEl();
+    t.value += c;
+}
+
+function toggleVoiceOptions(){
+    document.getElementById("elevenlabsOptions").style.display =
+        voiceEl().value === "elevenlabs" ? "block" : "none";
+}
+
+function showListeningUI(){
+    document.getElementById("setup").style.display = "none";
+    document.getElementById("storiesList").style.display = "none";
+    document.getElementById("listeningArea").style.display = "block";
+}
+
+// shortcuts
+const topicEl = () => document.getElementById("topic");
+const levelEl = () => document.getElementById("level");
+const tenseEl = () => document.getElementById("tense");
+const voiceEl = () => document.getElementById("voiceEngine");
+const dictationEl = () => document.getElementById("dictation");
+const feedbackEl = () => document.getElementById("feedback");
+
+// load stories on page load
+window.onload = loadListeningStories;
 
 </script>
 
