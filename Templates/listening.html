@@ -102,11 +102,29 @@ button { padding: 10px 15px; border-radius: 8px; border: none; cursor: pointer; 
         <option value="elevenlabs">ElevenLabs</option>
     </select>
 
-    <div id="elevenlabsOptions" style="display:none;">
+    <!-- ElevenLabs options -->
+    <div id="elevenlabsOptions" style="display:none; margin-top:10px;">
+
+        <h4>Gender</h4>
         <select id="voiceGender">
             <option value="female">Female</option>
             <option value="male">Male</option>
         </select>
+
+        <h4>Country</h4>
+        <select id="voiceCountry" onchange="toggleRegion()">
+            <option value="spain">Spain</option>
+            <option value="mexico">Mexico</option>
+            <option value="argentina">Argentina</option>
+        </select>
+
+        <h4>Region</h4>
+        <select id="voiceRegion">
+            <option value="">Default</option>
+            <option value="madrid">Madrid</option>
+            <option value="andalusia">Andalusia</option>
+        </select>
+
     </div>
 
     <button id="startBtn" class="primary" onclick="startListening()">
@@ -362,6 +380,19 @@ function insertChar(c){
 function toggleVoiceOptions(){
     document.getElementById("elevenlabsOptions").style.display =
         voiceEl().value === "elevenlabs" ? "block" : "none";
+}
+
+function toggleVoiceOptions() {
+    const engine = document.getElementById("voiceEngine").value;
+    document.getElementById("elevenlabsOptions").style.display =
+        engine === "elevenlabs" ? "block" : "none";
+}
+
+function toggleRegion() {
+    const country = document.getElementById("voiceCountry").value;
+    const region = document.getElementById("voiceRegion");
+
+    region.disabled = country !== "spain";
 }
 
 function showListeningUI(){
