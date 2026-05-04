@@ -66,6 +66,8 @@ def get_voice_id(country, gender, region):
         return VOICE_MAP["spain"]["female"]["default"]
 
 def generate_elevenlabs_audio(text, voice_id):
+    print("🔥 ELEVENLABS FUNCTION HIT 🔥")
+    
     api_key = os.getenv("ELEVENLABS_API_KEY")
 
     if not api_key:
