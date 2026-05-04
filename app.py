@@ -70,6 +70,8 @@ def generate_elevenlabs_audio(text, voice_id):
     
     api_key = os.getenv("ELEVENLABS_API_KEY")
 
+    print("🔑 API KEY EXISTS:", bool(api_key))
+
     if not api_key:
         print("❌ NO ELEVENLABS API KEY")
         return None
