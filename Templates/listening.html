@@ -250,9 +250,18 @@ async function startNewsListening() {
 
 // ---------------- AUDIO ----------------
 function playAudio(data) {
+
     if (data.voice === "elevenlabs" && data.audio) {
-        new Audio("data:audio/mpeg;base64," + data.audio).play();
+        console.log("🎧 Playing ElevenLabs audio");
+
+        const audio = new Audio("data:audio/mpeg;base64," + data.audio);
+
+        audio.play().catch(err => {
+            console.error("Audio playback failed:", err);
+        });
+
     } else {
+        console.log("⚠️ Falling back to browser TTS");
         playCurrent();
     }
 }
