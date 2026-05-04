@@ -69,6 +69,7 @@ def generate_elevenlabs_audio(text, voice_id):
     api_key = os.getenv("ELEVENLABS_API_KEY")
 
     if not api_key:
+        print("❌ Missing ElevenLabs API key")
         return None
 
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
@@ -80,10 +81,18 @@ def generate_elevenlabs_audio(text, voice_id):
 
     data = {
         "text": text,
-        "model_id": "eleven_multilingual_v2"
+        "model_id": "eleven_multilingual_v2",
+        "voice_settings": {
+            "stability": 0.4,
+            "similarity_boost": 0.8
+        }
     }
 
     response = requests.post(url, json=data, headers=headers)
+
+    if response.status_code != 200:
+        print("❌ ElevenLabs error:", response.text)
+        return None
 
     audio_bytes = response.content
     return base64.b64encode(audio_bytes).decode("utf-8")
@@ -662,16 +671,14 @@ Return as JSON list like:
     conn.close()
 
     if voice == "elevenlabs":
-        gender = request.args.get("gender", "female")
-        country = request.args.get("country", "spain")
-        region = request.args.get("region") or "default"
 
-        voice_id = VOICE_MAP.get(country, {}).get(gender, {}).get(region)
+    voice_id = get_voice_id(country, gender, region)
 
-        if not voice_id:
-            voice_id = VOICE_MAP[country][gender]["default"]
+    print("🎤 ElevenLabs voice_id:", voice_id)
 
-        audio = generate_elevenlabs_audio(full_text, voice_id)
+    audio = generate_elevenlabs_audio(full_text, voice_id)
+
+    print("🎧 Audio generated:", audio is not None)
 
     else:
         audio = None
@@ -755,16 +762,14 @@ def generate_news():
     conn.close()
 
     if voice == "elevenlabs":
-        gender = request.args.get("gender", "female")
-        country = request.args.get("country", "spain")
-        region = request.args.get("region") or "default"
 
-        voice_id = VOICE_MAP.get(country, {}).get(gender, {}).get(region)
+    voice_id = get_voice_id(country, gender, region)
 
-        if not voice_id:
-            voice_id = VOICE_MAP[country][gender]["default"]
+    print("🎤 ElevenLabs voice_id:", voice_id)
 
-        audio = generate_elevenlabs_audio(full_text, voice_id)
+    audio = generate_elevenlabs_audio(full_text, voice_id)
+
+    print("🎧 Audio generated:", audio is not None)
 
     else:
         audio = None
