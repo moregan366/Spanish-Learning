@@ -377,15 +377,25 @@ function insertChar(c){
     t.value += c;
 }
 
-function toggleVoiceOptions(){
-    document.getElementById("elevenlabsOptions").style.display =
-        voiceEl().value === "elevenlabs" ? "block" : "none";
-}
-
-function toggleVoiceOptions() {
+unction toggleVoiceOptions() {
     const engine = document.getElementById("voiceEngine").value;
+
+    // Show/hide ElevenLabs section
     document.getElementById("elevenlabsOptions").style.display =
         engine === "elevenlabs" ? "block" : "none";
+
+    // Optional: disable region unless Spain
+    const country = document.getElementById("voiceCountry")?.value;
+    const regionDropdown = document.getElementById("voiceRegion");
+
+    if (regionDropdown) {
+        if (country !== "spain") {
+            regionDropdown.value = "";
+            regionDropdown.disabled = true;
+        } else {
+            regionDropdown.disabled = false;
+        }
+    }
 }
 
 function toggleRegion() {
@@ -410,6 +420,11 @@ const dictationEl = () => document.getElementById("dictation");
 const feedbackEl = () => document.getElementById("feedback");
 
 // load stories on page load
+
+window.addEventListener("DOMContentLoaded", () => {
+    toggleVoiceOptions();
+});
+
 window.onload = loadListeningStories;
 
 </script>
