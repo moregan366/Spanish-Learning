@@ -86,10 +86,10 @@ def generate_elevenlabs_audio(text, voice_id):
 
     response = requests.post(url, json=data, headers=headers)
 
-    print("ELEVENLABS STATUS:", response.status_code)
+    print("🎤 ElevenLabs status:", response.status_code)
 
     if response.status_code != 200:
-        print("❌ ELEVENLABS ERROR:", response.text)
+        print("❌ ElevenLabs ERROR:", response.text)
         return None
 
     return base64.b64encode(response.content).decode("utf-8")
