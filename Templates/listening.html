@@ -260,9 +260,29 @@ function playAudio(data) {
 // ---------------- PLAY ----------------
 function playCurrent() {
     if (!listeningStory.length) return;
+
     let s = listeningStory[currentIndex];
     if (typeof s === "object") s = s.spanish;
-    speechSynthesis.speak(new SpeechSynthesisUtterance(s));
+
+    const utterance = new SpeechSynthesisUtterance(s);
+
+    // 🔥 FORCE Spanish language
+    utterance.lang = "es-ES";
+
+    // 🔥 Pick a real Spanish voice (important)
+    const voices = speechSynthesis.getVoices();
+
+    // Try best voices first
+    let spanishVoice =
+        voices.find(v => v.name.includes("Google") && v.lang.startsWith("es")) ||
+        voices.find(v => v.name.includes("Microsoft") && v.lang.startsWith("es")) ||
+        voices.find(v => v.lang.startsWith("es"));
+
+    if (spanishVoice) {
+        utterance.voice = spanishVoice;
+    }
+
+    speechSynthesis.speak(utterance);
 }
 
 // ---------------- CHECK ----------------
