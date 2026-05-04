@@ -672,13 +672,13 @@ Return as JSON list like:
 
     if voice == "elevenlabs":
 
-    voice_id = get_voice_id(country, gender, region)
+        voice_id = get_voice_id(country, gender, region)
 
-    print("🎤 ElevenLabs voice_id:", voice_id)
+        print("🎤 ElevenLabs voice_id:", voice_id)
 
-    audio = generate_elevenlabs_audio(full_text, voice_id)
+        audio = generate_elevenlabs_audio(full_text, voice_id)
 
-    print("🎧 Audio generated:", audio is not None)
+        print("🎧 Audio generated:", audio is not None)
 
     else:
         audio = None
@@ -763,13 +763,13 @@ def generate_news():
 
     if voice == "elevenlabs":
 
-    voice_id = get_voice_id(country, gender, region)
+        voice_id = get_voice_id(country, gender, region)
 
-    print("🎤 ElevenLabs voice_id:", voice_id)
+        print("🎤 ElevenLabs voice_id:", voice_id)
 
-    audio = generate_elevenlabs_audio(full_text, voice_id)
+        audio = generate_elevenlabs_audio(full_text, voice_id)
 
-    print("🎧 Audio generated:", audio is not None)
+        print("🎧 Audio generated:", audio is not None)
 
     else:
         audio = None
