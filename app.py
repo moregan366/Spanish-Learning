@@ -11,28 +11,28 @@ import base64
 VOICE_MAP = {
     "spain": {
         "female": {
-            "default": "SPANISH_FEMALE_ID",
-            "madrid": "SPANISH_MADRID_ID",
-            "andalusia": "SPANISH_ANDALUSIA_ID"
+            "default": "21m00Tcm4TlvDq8ikWAM",   # good Spanish female
+            "madrid": "21m00Tcm4TlvDq8ikWAM",
+            "andalusia": "21m00Tcm4TlvDq8ikWAM"
         },
         "male": {
-            "default": "SPANISH_MALE_ID"
+            "default": "TxGEqnHWrfWFTfGW9XjX"
         }
     },
     "mexico": {
         "female": {
-            "default": "MEXICO_FEMALE_ID"
+            "default": "21m00Tcm4TlvDq8ikWAM"
         },
         "male": {
-            "default": "MEXICO_MALE_ID"
+            "default": "TxGEqnHWrfWFTfGW9XjX"
         }
     },
     "argentina": {
         "female": {
-            "default": "ARG_FEMALE_ID"
+            "default": "21m00Tcm4TlvDq8ikWAM"
         },
         "male": {
-            "default": "ARG_MALE_ID"
+            "default": "TxGEqnHWrfWFTfGW9XjX"
         }
     }
 }
@@ -55,13 +55,11 @@ def get_voice_id(country, gender, region):
         # fallback (VERY important)
         return "EXAVITQu4vr4xnSDxMaL"
 
-def generate_elevenlabs_audio(text, country, gender, region):
-
+def generate_elevenlabs_audio(text, voice_id):
     api_key = os.getenv("ELEVENLABS_API_KEY")
+
     if not api_key:
         return None
-
-    voice_id = get_voice_id(country, gender, region)
 
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
 
@@ -72,20 +70,13 @@ def generate_elevenlabs_audio(text, country, gender, region):
 
     data = {
         "text": text,
-        "model_id": "eleven_multilingual_v2",
-        "voice_settings": {
-            "stability": 0.5,
-            "similarity_boost": 0.8,
-            "style": 0.3,
-            "use_speaker_boost": True
-        }
+        "model_id": "eleven_multilingual_v2"
     }
 
     response = requests.post(url, json=data, headers=headers)
 
-    audio_base64 = base64.b64encode(response.content).decode("utf-8")
-
-    return audio_base64
+    audio_bytes = response.content
+    return base64.b64encode(audio_bytes).decode("utf-8")
 
 from openai import OpenAI
 
@@ -659,8 +650,16 @@ Return as JSON list like:
     conn.close()
 
     if voice == "elevenlabs":
-        full_text = " ".join(sentences)
-        audio = generate_elevenlabs_audio(full_text, country, gender, region)
+        gender = request.args.get("gender", "female")
+        country = request.args.get("country", "spain")
+        region = request.args.get("region") or "default"
+
+        voice_id = VOICE_MAP.get(country, {}).get(gender, {}).get(region)
+
+        if not voice_id:
+            voice_id = VOICE_MAP[country][gender]["default"]
+
+        audio = generate_elevenlabs_audio(full_text, voice_id)
     else:
         audio = None
 
@@ -741,8 +740,16 @@ def generate_news():
     conn.close()
 
     if voice == "elevenlabs":
-        full_text = " ".join(sentences)
-        audio = generate_elevenlabs_audio(full_text, country, gender, region)
+        gender = request.args.get("gender", "female")
+        country = request.args.get("country", "spain")
+        region = request.args.get("region") or "default"
+
+        voice_id = VOICE_MAP.get(country, {}).get(gender, {}).get(region)
+
+        if not voice_id:
+            voice_id = VOICE_MAP[country][gender]["default"]
+
+        audio = generate_elevenlabs_audio(full_text, voice_id)
     else:
         audio = None
 
