@@ -579,7 +579,7 @@ def save_progress(id):
 # ------------------------
 @app.route("/generate_listening")
 def generate_listening():
-    voice = request.args.get("voice") or "standard"
+    voice = request.args.get("voice", "standard")
     gender = request.args.get("gender")
     country = request.args.get("country")
     region = request.args.get("region")
@@ -662,6 +662,7 @@ Return as JSON list like:
             voice_id = VOICE_MAP[country][gender]["default"]
 
         audio = generate_elevenlabs_audio(full_text, voice_id)
+
     else:
         audio = None
 
@@ -677,7 +678,7 @@ Return as JSON list like:
 # ------------------------
 @app.route("/generate_news")
 def generate_news():
-    voice = request.args.get("voice") or "standard"
+    voice = request.args.get("voice", "standard")
     gender = request.args.get("gender")
     country = request.args.get("country")
     region = request.args.get("region")
@@ -754,6 +755,7 @@ def generate_news():
             voice_id = VOICE_MAP[country][gender]["default"]
 
         audio = generate_elevenlabs_audio(full_text, voice_id)
+
     else:
         audio = None
 
