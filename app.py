@@ -645,7 +645,7 @@ Return as JSON list like:
 
     story_id = cur.fetchone()[0]
 
-    full_text = " ".join([s["spanish"] for s in sentences])
+    full_text = " ".join(sentences)
 
     conn.commit()
     cur.close()
@@ -737,7 +737,7 @@ def generate_news():
 
     story_id = cur.fetchone()[0]
 
-    full_text = " ".join([s["spanish"] for s in sentences])
+    full_text = " ".join(sentences)
 
     conn.commit()
     cur.close()
