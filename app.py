@@ -69,7 +69,7 @@ def generate_elevenlabs_audio(text, voice_id):
     api_key = os.getenv("ELEVENLABS_API_KEY")
 
     if not api_key:
-        print("❌ Missing ElevenLabs API key")
+        print("❌ NO ELEVENLABS API KEY")
         return None
 
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
@@ -81,21 +81,18 @@ def generate_elevenlabs_audio(text, voice_id):
 
     data = {
         "text": text,
-        "model_id": "eleven_multilingual_v2",
-        "voice_settings": {
-            "stability": 0.4,
-            "similarity_boost": 0.8
-        }
+        "model_id": "eleven_multilingual_v2"
     }
 
     response = requests.post(url, json=data, headers=headers)
 
+    print("ELEVENLABS STATUS:", response.status_code)
+
     if response.status_code != 200:
-        print("❌ ElevenLabs error:", response.text)
+        print("❌ ELEVENLABS ERROR:", response.text)
         return None
 
-    audio_bytes = response.content
-    return base64.b64encode(audio_bytes).decode("utf-8")
+    return base64.b64encode(response.content).decode("utf-8")
 
 from openai import OpenAI
 
@@ -598,6 +595,7 @@ def save_progress(id):
 # ------------------------
 @app.route("/generate_listening")
 def generate_listening():
+
     voice = request.args.get("voice", "standard")
     gender = request.args.get("gender")
     country = request.args.get("country")
@@ -605,6 +603,9 @@ def generate_listening():
     topic = request.args.get("topic")
     level = request.args.get("level")
     tense = request.args.get("tense")
+
+    print("VOICE PARAM:", voice)
+    print("GENDER:", gender, "COUNTRY:", country, "REGION:", region)  
 
     prompt = f"""
 You are creating a Spanish listening exercise.
@@ -671,16 +672,17 @@ Return as JSON list like:
     conn.close()
 
     if voice == "elevenlabs":
-
         voice_id = get_voice_id(country, gender, region)
 
-        print("🎤 ElevenLabs voice_id:", voice_id)
+        print("🎤 USING ELEVENLABS")
+        print("Voice ID:", voice_id)
 
         audio = generate_elevenlabs_audio(full_text, voice_id)
 
-        print("🎧 Audio generated:", audio is not None)
+        print("Audio returned:", audio is not None)
 
     else:
+        print("⚠️ USING STANDARD VOICE")
         audio = None
 
     return jsonify({
@@ -762,16 +764,17 @@ def generate_news():
     conn.close()
 
     if voice == "elevenlabs":
-
         voice_id = get_voice_id(country, gender, region)
 
-        print("🎤 ElevenLabs voice_id:", voice_id)
+        print("🎤 USING ELEVENLABS")
+        print("Voice ID:", voice_id)
 
         audio = generate_elevenlabs_audio(full_text, voice_id)
 
-        print("🎧 Audio generated:", audio is not None)
+        print("Audio returned:", audio is not None)
 
     else:
+        print("⚠️ USING STANDARD VOICE")
         audio = None
 
     return jsonify({
