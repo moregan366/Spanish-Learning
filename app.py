@@ -11,28 +11,38 @@ import base64
 VOICE_MAP = {
     "spain": {
         "female": {
-            "default": "21m00Tcm4TlvDq8ikWAM",   # good Spanish female
-            "madrid": "21m00Tcm4TlvDq8ikWAM",
-            "andalusia": "21m00Tcm4TlvDq8ikWAM"
+            "default": "SDVJaMLoJa7wc3s2sn7d",   # good Spanish female
+            "madrid": "SDVJaMLoJa7wc3s2sn7d",
+            "andalusia": "2VUqK4PEdMj16L6xTN4J"
         },
         "male": {
-            "default": "TxGEqnHWrfWFTfGW9XjX"
+            "default": "WWVK6dYMrl0ZHnHT7cRj",
+            "madrid": "WWVK6dYMrl0ZHnHT7cRj",
+            "andalusia": "LcMajEnHqf3tUTha5ppa"
         }
     },
     "mexico": {
         "female": {
-            "default": "21m00Tcm4TlvDq8ikWAM"
+            "default": "45awEU2ZYXZdWPFsUd43"
         },
         "male": {
-            "default": "TxGEqnHWrfWFTfGW9XjX"
+            "default": "U9jmr7kY6mMqS39kfA01"
+        }
+    },
+    "colombia": {
+        "female": {
+            "default": "86V9x9hrQds83qf7zaGn"
+        },
+        "male": {
+            "default": "beQfcCW5PgdTQs4cETaz"
         }
     },
     "argentina": {
         "female": {
-            "default": "21m00Tcm4TlvDq8ikWAM"
+            "default": "9oPKasc15pfAbMr7N6Gs"
         },
         "male": {
-            "default": "TxGEqnHWrfWFTfGW9XjX"
+            "default": "vgekQLm3GYiKMHUnPVvY"
         }
     }
 }
@@ -53,7 +63,7 @@ def get_voice_id(country, gender, region):
 
     except KeyError:
         # fallback (VERY important)
-        return "EXAVITQu4vr4xnSDxMaL"
+        return VOICE_MAP["spain"]["female"]["default"]
 
 def generate_elevenlabs_audio(text, voice_id):
     api_key = os.getenv("ELEVENLABS_API_KEY")
