@@ -88,10 +88,10 @@ def generate_elevenlabs_audio(text, voice_id):
 
     response = requests.post(url, json=data, headers=headers)
 
-    print("🎤 ElevenLabs status:", response.status_code)
+    print("🔥 ELEVENLABS STATUS:", response.status_code)
+    print("🔥 ELEVENLABS RESPONSE:", response.text[:200])
 
     if response.status_code != 200:
-        print("❌ ElevenLabs ERROR:", response.text)
         return None
 
     return base64.b64encode(response.content).decode("utf-8")
@@ -598,7 +598,7 @@ def save_progress(id):
 @app.route("/generate_listening")
 def generate_listening():
 
-    voice = request.args.get("voice", "standard")
+    voice = (request.args.get("voice") or "standard").strip().lower()
     gender = request.args.get("gender")
     country = request.args.get("country")
     region = request.args.get("region")
@@ -607,7 +607,8 @@ def generate_listening():
     tense = request.args.get("tense")
 
     print("VOICE PARAM:", voice)
-    print("GENDER:", gender, "COUNTRY:", country, "REGION:", region)  
+    print("GENDER:", gender, "COUNTRY:", country, "REGION:", region) 
+    print("VOICE RECEIVED:", voice)
 
     prompt = f"""
 You are creating a Spanish listening exercise.
@@ -699,10 +700,12 @@ Return as JSON list like:
 # ------------------------
 @app.route("/generate_news")
 def generate_news():
-    voice = request.args.get("voice", "standard")
+    voice = (request.args.get("voice") or "standard").strip().lower()
     gender = request.args.get("gender")
     country = request.args.get("country")
     region = request.args.get("region")
+
+    print("VOICE RECEIVED:", voice)
 
     import json
     from openai import OpenAI
