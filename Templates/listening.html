@@ -228,7 +228,7 @@ async function startNewsListening() {
 
     // ✅ FIXED: pass everything to backend
     const res = await fetch(
-        `/generate_news?voice=${voiceEngine}&gender=${gender}&country=${country}&region=${region}`
+        `/generate_listening?topic=${topic}&level=${level}&tense=${tense}&voice=${voiceEngine}&gender=${gender}&country=${country}&region=${region}`
     );
 
     const data = await res.json();
