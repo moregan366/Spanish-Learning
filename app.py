@@ -68,29 +68,59 @@ def get_voice_id(country, gender, region):
         return VOICE_MAP["spain"]["female"]["default"]
 
 def generate_elevenlabs_audio(text, voice_id):
-    print("🔥 ELEVENLABS FUNCTION HIT🔥")
-    print("TEXT LENGTH:", len(text))
+    print("🔥 ELEVENLABS FUNCTION HIT 🔥")
 
+    # --- DEBUG INPUTS ---
+    print("TEXT PREVIEW:", text[:100] if text else "EMPTY")
+    print("TEXT LENGTH:", len(text) if text else 0)
+    print("VOICE ID:", voice_id)
+
+    # --- SAFETY CHECK ---
+    if not text:
+        print("❌ ERROR: TEXT IS EMPTY")
+        return None
+
+    # --- API KEY ---
     api_key = os.getenv("ELEVENLABS_API_KEY")
     print("API KEY EXISTS:", bool(api_key))
 
-    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
-
-    response = requests.post(url, json={
-        "text": text,
-        "model_id": "eleven_multilingual_v2"
-    }, headers={
-        "xi-api-key": api_key,
-        "Content-Type": "application/json"
-    })
-
-    print("STATUS:", response.status_code)
-    print("RESPONSE:", response.text[:200])
-
-    if response.status_code != 200:
+    if not api_key:
+        print("❌ ERROR: ELEVENLABS_API_KEY is missing")
         return None
 
-    return base64.b64encode(response.content).decode("utf-8")
+    # --- REQUEST ---
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+
+    try:
+        response = requests.post(
+            url,
+            json={
+                "text": text,
+                "model_id": "eleven_multilingual_v2"
+            },
+            headers={
+                "xi-api-key": api_key,
+                "Content-Type": "application/json"
+            },
+            timeout=20
+        )
+
+        # --- DEBUG RESPONSE ---
+        print("STATUS:", response.status_code)
+        print("RESPONSE (first 200 chars):", response.text[:200])
+
+        if response.status_code != 200:
+            print("❌ ElevenLabs request failed")
+            return None
+
+        print("✅ AUDIO GENERATED SUCCESSFULLY")
+
+        # --- RETURN BASE64 AUDIO ---
+        return base64.b64encode(response.content).decode("utf-8")
+
+    except Exception as e:
+        print("❌ EXCEPTION DURING ELEVENLABS CALL:", str(e))
+        return None
 
 from openai import OpenAI
 
