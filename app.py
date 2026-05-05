@@ -1,12 +1,12 @@
-    from flask import Flask, request, jsonify, render_template
-    from flask_cors import CORS
+from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
     
-    import os
-    import json
-    import psycopg2
-    import random
-    import requests
-    import base64
+import os
+import json
+import psycopg2
+import random
+import requests
+import base64
     
     print("🚨 NEW VERSION IS LIVE 🚨")
     
