@@ -567,7 +567,7 @@ def delete_story(id):
 
         return jsonify({"status": "deleted"})
 
-        except Exception as e:
+    except Exception as e:
         print("ERROR deleting story:", e)
         return jsonify({"error": str(e)}), 500
 
