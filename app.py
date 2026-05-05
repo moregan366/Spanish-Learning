@@ -179,149 +179,149 @@ def get_cards():
 # ------------------------
 @app.route("/delete/<int:id>", methods=["DELETE"])
 def delete_card(id):
-conn = get_db()
-cur = conn.cursor()
+    conn = get_db()
+    cur = conn.cursor()
 
-cur.execute('DELETE FROM "Flashcards" WHERE id = %s', (id,))
-conn.commit()
+    cur.execute('DELETE FROM "Flashcards" WHERE id = %s', (id,))
+    conn.commit()
 
-cur.close()
-conn.close()
+    cur.close()
+    conn.close()
 
-return jsonify({"message": "Card deleted"})
+    return jsonify({"message": "Card deleted"})
 
 # ------------------------
 # Delete card
 # ------------------------
 @app.route("/quiz")
 def quiz():
-return render_template("quiz.html")
+    return render_template("quiz.html")
 
 # ------------------------
 # Spanish Writing
 # ------------------------
 @app.route("/writing")
 def writing():
-return render_template("writing.html")
+    return render_template("writing.html")
 
 # ------------------------
 # Generate Story
 # ------------------------
 @app.route("/generate_story")
 def generate_story():
-topic = request.args.get("topic")
-level = request.args.get("level")
-tense = request.args.get("tense")
+    topic = request.args.get("topic")
+    level = request.args.get("level")
+    tense = request.args.get("tense")
 
-conn = get_db()
-cur = conn.cursor()
+    conn = get_db()
+    cur = conn.cursor()
 
-cur.execute("""
-SELECT content
-FROM stories
-WHERE LOWER(topic)=LOWER(%s)
-AND LOWER(level)=LOWER(%s)
-AND LOWER(tense)=LOWER(%s)
-ORDER BY created_at DESC
-LIMIT 5
-""", (topic, level, tense))
+    cur.execute("""
+    SELECT content
+    FROM stories
+    WHERE LOWER(topic)=LOWER(%s)
+    AND LOWER(level)=LOWER(%s)
+    AND LOWER(tense)=LOWER(%s)
+    ORDER BY created_at DESC
+    LIMIT 5
+    """, (topic, level, tense))
 
-existing = [r[0] for r in cur.fetchall()]
-existing_text = "\n".join(str(e) for e in existing)
+    existing = [r[0] for r in cur.fetchall()]
+    existing_text = "\n".join(str(e) for e in existing)
 
-cur.close()
-conn.close()
+    cur.close()
+    conn.close()
 
-random_hint = random.choice([
-"The story happens at an airport.",
-"The story happens in a restaurant.",
-"The story happens in a hotel.",
-"The story happens while walking in a city.",
-"The story happens on a train."
-])
+    random_hint = random.choice([
+    "The story happens at an airport.",
+    "The story happens in a restaurant.",
+    "The story happens in a hotel.",
+    "The story happens while walking in a city.",
+    "The story happens on a train."
+    ])
 
-prompt = f"""
-Create a Spanish learning story.
+    prompt = f"""
+    Create a Spanish learning story.
 
-Topic: {topic}
-Level: {level}
-Tense: {tense}
+    Topic: {topic}
+    Level: {level}
+    Tense: {tense}
 
-IMPORTANT:
-Do NOT repeat or resemble any of these previous stories:
+    IMPORTANT:
+    Do NOT repeat or resemble any of these previous stories:
 
----
-{existing_text}
----
+    ---
+    {existing_text}
+    ---
 
-Make this story clearly different by:
-- Using a different setting (e.g. airport, hotel, restaurant, city walk)
-- Using different verbs and vocabulary
-- Avoiding phrases like "I travel to Spain"
+    Make this story clearly different by:
+    - Using a different setting (e.g. airport, hotel, restaurant, city walk)
+    - Using different verbs and vocabulary
+    - Avoiding phrases like "I travel to Spain"
 
-Story idea: {random_hint}
+    Story idea: {random_hint}
 
-Keep it appropriate for {level} learners.
+    Keep it appropriate for {level} learners.
 
-Generate EXACTLY 10 short, connected sentences that form a coherent story.
+    Generate EXACTLY 10 short, connected sentences that form a coherent story.
 
-Each line MUST follow this format:
-English | Spanish
+    Each line MUST follow this format:
+    English | Spanish
 
-Do not include numbering.
-Do not include extra text.
+    Do not include numbering.
+    Do not include extra text.
 
-Example:
-I go to the store. | Voy a la tienda.
-"""
+    Example:
+    I go to the store. | Voy a la tienda.
+    """
 
-response = client.chat.completions.create(
-model="gpt-4.1-mini",
-messages=[{"role": "user", "content": prompt}]
-)
+    response = client.chat.completions.create(
+    model="gpt-4.1-mini",
+    messages=[{"role": "user", "content": prompt}]
+    )
 
-text = response.choices[0].message.content
+    text = response.choices[0].message.content
 
-story = []
-lines = text.split("\n")
+    story = []
+    lines = text.split("\n")
 
-for line in lines:
-if "|" in line:
-english, spanish = line.split("|", 1)
-story.append({
-"english": english.strip(),
-"spanish": spanish.strip()
-})
+    for line in lines:
+    if "|" in line:
+    english, spanish = line.split("|", 1)
+    story.append({
+    "english": english.strip(),
+    "spanish": spanish.strip()
+    })
 
-# ✅ SAVE STORY (FIXED)
+    # ✅ SAVE STORY (FIXED)
 
-conn = get_db()
-cur = conn.cursor()
+    conn = get_db()
+    cur = conn.cursor()
 
-title = story[0]["english"][:40] if story else "Untitled story"
+    title = story[0]["english"][:40] if story else "Untitled story"
 
-cur.execute("""
-INSERT INTO stories (title, topic, level, tense, content)
-VALUES (%s, %s, %s, %s, %s)
-RETURNING id
-""", (
-title,
-topic,
-level,
-tense,
-json.dumps(story)
-))
+    cur.execute("""
+    INSERT INTO stories (title, topic, level, tense, content)
+    VALUES (%s, %s, %s, %s, %s)
+    RETURNING id
+    """, (
+    title,
+    topic,
+    level,
+    tense,
+    json.dumps(story)
+    ))
 
-story_id = cur.fetchone()[0]
+    story_id = cur.fetchone()[0]
 
-conn.commit()
-cur.close()
-conn.close()
+    conn.commit()
+    cur.close()
+    conn.close()
 
-return jsonify({
-"story": story,
-"id": story_id
-})
+    return jsonify({
+    "story": story,
+    "id": story_id
+    })
 
 # ------------------------
 # Get Stories
