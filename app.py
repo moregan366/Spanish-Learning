@@ -625,7 +625,18 @@ def save_progress(id):
 def generate_listening():
 
     voice = request.args.get("voice", "standard")
-    voice = voice.strip().lower() if isinstance(voice, str) else "standard"
+
+    # 🔍 DEBUG (critical)
+    print("RAW VOICE FROM REQUEST:", repr(voice))
+
+    # 🔧 NORMALISE
+    if isinstance(voice, str):
+        voice = voice.strip().lower()
+    else:
+        voice = "standard"
+
+        print("NORMALISED VOICE:", repr(voice))
+
     gender = request.args.get("gender")
     country = request.args.get("country")
     region = request.args.get("region")
@@ -706,7 +717,7 @@ Return as JSON list like:
 
     print("VOICE RAW VALUE:", repr(voice))
     
-    if voice and "elevenlabs" in voice:
+    if voice == "elevenlabs":
         voice_id = get_voice_id(country, gender, region)
 
         print("🎤 USING ELEVENLABS")
@@ -728,12 +739,23 @@ Return as JSON list like:
     })
 
 # ------------------------
-# Generate Listeing News Stories
+# Generate Listening News Stories
 # ------------------------
 @app.route("/generate_news")
 def generate_news():
     voice = request.args.get("voice", "standard")
-    voice = voice.strip().lower() if isinstance(voice, str) else "standard"
+
+        # 🔍 DEBUG (critical)
+        print("RAW VOICE FROM REQUEST:", repr(voice))
+
+        # 🔧 NORMALISE
+        if isinstance(voice, str):
+            voice = voice.strip().lower()
+        else:
+            voice = "standard"
+
+        print("NORMALISED VOICE:", repr(voice))
+        
     gender = request.args.get("gender")
     country = request.args.get("country")
     region = request.args.get("region")
@@ -806,7 +828,7 @@ def generate_news():
 
     print("VOICE RAW VALUE:", repr(voice))
     
-    if voice and "elevenlabs" in voice:
+    if voice == "elevenlabs":
         voice_id = get_voice_id(country, gender, region)
 
         print("🎤 USING ELEVENLABS")
