@@ -603,126 +603,7 @@ def save_progress(id):
 @app.route("/generate_listening")
 def generate_listening():
     print("LISTENING HIT", flush=True)
-    voice = request.args.get("voice", "standard")
 
-    # 🔍 DEBUG
-    print("RAW VOICE FROM REQUEST:", repr(voice))
-
-    # 🔧 NORMALISE
-    if isinstance(voice, str):
-        voice = voice.strip().lower()
-    else:
-        voice = "standard"
-
-    print("NORMALISED VOICE:", repr(voice))
-
-    gender = request.args.get("gender")
-    country = request.args.get("country")
-    region = request.args.get("region")
-    topic = request.args.get("topic")
-    level = request.args.get("level")
-    tense = request.args.get("tense")
-
-    print("VOICE CHECK:", voice == "elevenlabs")
-    print("VOICE VALUE:", voice)
-    print("GENDER:", gender, "COUNTRY:", country, "REGION:", region)
-
-    prompt = f"""
-    You are creating a Spanish listening exercise.
-
-    Level: {level}
-    Topic: {topic}
-    Tense: {tense}
-
-    Requirements:
-
-    - For A1–B1: simple, everyday sentences
-    - For B2–C2: interesting, realistic, engaging content (news, stories, real-life situations)
-
-    - Generate a short passage of 3–5 sentences
-    - Sentences should be connected and natural
-    - Spanish ONLY (no English)
-
-    Return as JSON list like:
-    ["sentence 1", "sentence 2", ...]
-    """
-
-    response = client.chat.completions.create(
-    model="gpt-4.1-mini",
-    messages=[{"role": "user", "content": prompt}]
-    )
-
-    text = response.choices[0].message.content.strip()
-
-    # ✅ Parse AI output safely
-    try:
-        sentences = json.loads(text)
-    except:
-        sentences = [s.strip() for s in text.split("\n") if s.strip()]
-
-    # ✅ Convert to story format
-    story = [{"spanish": s, "english": ""} for s in sentences]
-
-    # ✅ Save to DB
-    conn = get_db()
-    cur = conn.cursor()
-
-    title = sentences[0][:40] if sentences else "Listening exercise"
-
-    cur.execute("""
-    INSERT INTO stories (title, topic, level, tense, content, mode)
-    VALUES (%s, %s, %s, %s, %s, %s)
-    RETURNING id
-    """, (
-    title,
-    topic,
-    level,
-    tense,
-    json.dumps(story),
-    "listening"
-    ))
-
-    story_id = cur.fetchone()[0]
-
-    full_text = " ".join(sentences)
-
-    print("FULL TEXT:", full_text)
-
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    print("VOICE FINAL VALUE:", repr(voice), flush=True)
-    print("VOICE == elevenlabs:", voice == "elevenlabs", flush=True)
-
-    # 🔊 AUDIO LOGIC
-    if voice == "elevenlabs":
-        voice_id = get_voice_id(country, gender, region)
-
-        print("🎤 USING ELEVENLABS")
-        print("Voice ID:", voice_id)
-
-        audio = generate_elevenlabs_audio(full_text, voice_id)
-
-        print("Audio returned:", audio is not None)
-
-    else:
-        print("⚠️ USING STANDARD VOICE")
-        audio = None
-
-    return jsonify({
-    "sentences": sentences,
-    "id": story_id,
-    "audio": audio,
-    "voice": voice
-    })
-
-# ------------------------
-# Generate Listening News Stories
-# ------------------------
-@app.route("/generate_news")
-def generate_news():
-    print("NEWS HIT")
     voice = request.args.get("voice", "standard")
 
     # 🔍 DEBUG
@@ -734,45 +615,174 @@ def generate_news():
     else:
         voice = "standard"
 
-    print("NORMALISED VOICE:", repr(voice))
+    print("NORMALISED VOICE:", repr(voice), flush=True)
+
+    gender = request.args.get("gender")
+    country = request.args.get("country")
+    region = request.args.get("region")
+    topic = request.args.get("topic")
+    level = request.args.get("level")
+    tense = request.args.get("tense")
+
+    print("VOICE CHECK:", voice == "elevenlabs", flush=True)
+    print("VOICE VALUE:", voice, flush=True)
+    print("GENDER:", gender, "COUNTRY:", country, "REGION:", region, flush=True)
+
+    # 🧠 Prompt
+    prompt = f"""
+    You are creating a Spanish listening exercise.
+
+    Level: {level}
+    Topic: {topic}
+    Tense: {tense}
+
+    - Generate 3–5 short connected sentences
+    - Spanish ONLY
+    - Return JSON array
+
+    Example:
+    ["Sentence 1", "Sentence 2"]
+    """
+
+    response = client.chat.completions.create(
+        model="gpt-4.1-mini",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    text = response.choices[0].message.content.strip()
+
+    # ✅ Parse safely
+    try:
+        sentences = json.loads(text)
+    except:
+        sentences = [s.strip() for s in text.split("\n") if s.strip()]
+
+    # ✅ Save to DB
+    conn = get_db()
+    cur = conn.cursor()
+
+    title = sentences[0][:40] if sentences else "Listening exercise"
+
+    story = [{"spanish": s, "english": ""} for s in sentences]
+
+    cur.execute("""
+    INSERT INTO stories (title, topic, level, tense, content, mode)
+    VALUES (%s, %s, %s, %s, %s, %s)
+    RETURNING id
+    """, (
+        title,
+        topic,
+        level,
+        tense,
+        json.dumps(story),
+        "listening"
+    ))
+
+    story_id = cur.fetchone()[0]
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    print("VOICE FINAL VALUE:", repr(voice), flush=True)
+
+    # 🔊 AUDIO LOGIC (FIXED)
+    audio_list = []
+
+    if voice == "elevenlabs":
+        voice_id = get_voice_id(country, gender, region)
+
+        print("🎤 USING ELEVENLABS", flush=True)
+        print("Voice ID:", voice_id, flush=True)
+
+        for s in sentences:
+            print("🔊 Generating audio for:", s, flush=True)
+            audio = generate_elevenlabs_audio(s, voice_id)
+            audio_list.append(audio)
+
+        print("Audio list length:", len(audio_list), flush=True)
+
+    else:
+        print("⚠️ USING STANDARD VOICE", flush=True)
+        audio_list = [None] * len(sentences)
+
+    # ✅ RETURN (IMPORTANT CHANGE)
+    return jsonify({
+        "sentences": sentences,
+        "id": story_id,
+        "audio": audio_list,
+        "voice": voice
+    })
+
+
+# ------------------------
+# Generate Listening News Stories
+# ------------------------
+@app.route("/generate_news")
+def generate_news():
+    print("📰 NEWS ROUTE HIT", flush=True)
+
+    voice = request.args.get("voice", "standard")
+
+    # 🔍 DEBUG
+    print("RAW VOICE FROM REQUEST:", repr(voice), flush=True)
+
+    # 🔧 NORMALISE
+    if isinstance(voice, str):
+        voice = voice.strip().lower()
+    else:
+        voice = "standard"
+
+    print("NORMALISED VOICE:", repr(voice), flush=True)
 
     gender = request.args.get("gender")
     country = request.args.get("country")
     region = request.args.get("region")
 
     print("VOICE CHECK:", voice == "elevenlabs", flush=True)
-    print("VOICE PARAM:", voice)
-    print("GENDER:", gender, "COUNTRY:", country, "REGION:", region)
+    print("VOICE VALUE:", voice, flush=True)
+    print("GENDER:", gender, "COUNTRY:", country, "REGION:", region, flush=True)
 
-    # 🔹 Prompt (BBC-style Spanish)
+    # 🧠 BBC-style prompt (FIXED)
     prompt = """
-    Create a Spanish news report for a language learner (B2-C1 level).
+    You are a professional Spanish news presenter (BBC style).
+
+    Create a realistic Spanish news report.
 
     Requirements:
-    - Topic: current world news (politics, economy, environment, etc.)
-    - Style: like a BBC news presenter
-    - Tone: formal, clear, professional
+    - Level: B2–C1 (advanced learners)
+    - Tone: formal, professional, natural spoken Spanish
+    - Topic: current world news (politics, economy, environment, technology, etc.)
     - Length: 5–7 sentences
-    - Use natural spoken Spanish
+    - Sentences should flow like a real broadcast
 
-    Return ONLY a JSON array of sentences.
-    Example:
-    ["Sentence 1", "Sentence 2", "Sentence 3"]
+    IMPORTANT:
+    - Do NOT simplify language
+    - Do NOT use beginner phrases
+    - Do NOT include English
+
+    Return ONLY a JSON array:
+    ["sentence 1", "sentence 2", ...]
     """
 
     response = client.chat.completions.create(
-    model="gpt-4.1-mini",
-    messages=[{"role": "user", "content": prompt}],
-    temperature=0.7
+        model="gpt-4.1-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7
     )
 
-    content = response.choices[0].message.content
+    content = response.choices[0].message.content.strip()
 
-    # 🔹 Parse safely
+    print("RAW AI RESPONSE:", content, flush=True)
+
+    # 🔹 Safe parse
     try:
         sentences = json.loads(content)
-    except:
+    except Exception as e:
+        print("⚠️ JSON PARSE FAILED:", str(e), flush=True)
         sentences = [s.strip() for s in content.split(".") if s.strip()]
+
+    print("PARSED SENTENCES:", sentences, flush=True)
 
     # 🔹 Save to DB
     conn = get_db()
@@ -785,46 +795,50 @@ def generate_news():
     VALUES (%s, %s, %s, %s, %s, %s)
     RETURNING id
     """, (
-    title,
-    "news",
-    "advanced",
-    "mixed",
-    json.dumps(sentences),
-    "news"
+        title,
+        "news",
+        "advanced",
+        "mixed",
+        json.dumps(sentences),
+        "news"
     ))
 
     story_id = cur.fetchone()[0]
-
-    full_text = " ".join(sentences)
-
-    print("FULL TEXT:", full_text)
 
     conn.commit()
     cur.close()
     conn.close()
 
-    print("VOICE RAW VALUE:", repr(voice))
+    print("STORY SAVED WITH ID:", story_id, flush=True)
 
-    # 🔊 AUDIO LOGIC
+    print("VOICE FINAL VALUE:", repr(voice), flush=True)
+
+    # 🔊 AUDIO LOGIC (FIXED)
+    audio_list = []
+
     if voice == "elevenlabs":
         voice_id = get_voice_id(country, gender, region)
 
-        print("🎤 USING ELEVENLABS")
-        print("Voice ID:", voice_id)
+        print("🎤 USING ELEVENLABS", flush=True)
+        print("Voice ID:", voice_id, flush=True)
 
-        audio = generate_elevenlabs_audio(full_text, voice_id)
+        for s in sentences:
+            print("🔊 Generating audio for:", s, flush=True)
+            audio = generate_elevenlabs_audio(s, voice_id)
+            audio_list.append(audio)
 
-        print("Audio returned:", audio is not None)
+        print("Audio list length:", len(audio_list), flush=True)
 
     else:
-        print("⚠️ USING STANDARD VOICE")
-        audio = None
+        print("⚠️ USING STANDARD VOICE", flush=True)
+        audio_list = [None] * len(sentences)
 
+    # ✅ RETURN
     return jsonify({
-    "sentences": sentences,
-    "id": story_id,
-    "audio": audio,
-    "voice": voice
+        "sentences": sentences,
+        "id": story_id,
+        "audio": audio_list,
+        "voice": voice
     })
 
 # ------------------------
