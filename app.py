@@ -672,7 +672,9 @@ Return as JSON list like:
     cur.close()
     conn.close()
 
-    if voice == "elevenlabs":
+    print("VOICE RAW VALUE:", repr(voice))
+    
+    if voice and "elevenlabs" in voice:
         voice_id = get_voice_id(country, gender, region)
 
         print("🎤 USING ELEVENLABS")
@@ -770,7 +772,9 @@ def generate_news():
     cur.close()
     conn.close()
 
-    if voice == "elevenlabs":
+    print("VOICE RAW VALUE:", repr(voice))
+    
+    if voice and "elevenlabs" in voice:
         voice_id = get_voice_id(country, gender, region)
 
         print("🎤 USING ELEVENLABS")
