@@ -74,6 +74,8 @@ def generate_elevenlabs_audio(text, voice_id):
 
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
 
+    print("🚀 SENDING REQUEST TO ELEVENLABS", flush=True)
+
     try:
         response = requests.post(
             url,
@@ -85,11 +87,11 @@ def generate_elevenlabs_audio(text, voice_id):
             timeout=20
         )
 
-        print("STATUS:", response.status_code)
-        print("RESPONSE (first 200 chars):", response.text[:200])
+        print("STATUS:", response.status_code, flush=True)
+        print("RESPONSE (first 200 chars):", response.text[:200], flush=True)
 
         if response.status_code != 200:
-            print("❌ ElevenLabs request failed")
+            print("❌ ElevenLabs request failed", flush=True)
             return None
 
         print("✅ AUDIO GENERATED SUCCESSFULLY")
