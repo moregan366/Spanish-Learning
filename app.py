@@ -442,7 +442,7 @@ def check_writing():
         result = response.choices[0].message.content.strip()
 
     if result.startswith("CORRECT"):
-        return jsonify({"correct": True})
+    return jsonify({"correct": True})
     else:
         feedback = result.replace("INCORRECT:", "").strip()
         return jsonify({
