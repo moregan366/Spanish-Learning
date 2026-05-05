@@ -8,6 +8,8 @@ import random
 import requests
 import base64
 
+print("🚨 NEW VERSION IS LIVE 🚨")
+
 VOICE_MAP = {
     "spain": {
         "female": {
