@@ -191,6 +191,9 @@ async function startListening() {
 
     const data = await res.json();
 
+    currentAudioList = data.audio;
+    currentIndex = 0;
+
     // ✅ setup state
     listeningStory = data.sentences;
     currentStoryId = data.id;
@@ -233,6 +236,9 @@ async function startNewsListening() {
 
     const data = await res.json();
 
+    currentAudioList = data.audio;
+    currentIndex = 0;
+
     listeningStory = data.sentences;
     currentStoryId = data.id;
     results = [];
@@ -263,6 +269,18 @@ function playAudio(data) {
     } else {
         console.log("⚠️ Falling back to browser TTS");
         playCurrent();
+    }
+}
+
+function playCurrentSentence() {
+    const audioBase64 = currentAudioList[currentIndex];
+
+    if (audioBase64) {
+        const audio = new Audio("data:audio/mpeg;base64," + audioBase64);
+        audio.play();
+    } else {
+        console.log("⚠️ No ElevenLabs audio, fallback");
+        speakWithBrowser(listeningStory[currentIndex]);
     }
 }
 
