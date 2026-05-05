@@ -719,155 +719,155 @@ def generate_listening():
 # ------------------------
 @app.route("/generate_news")
 def generate_news():
-voice = request.args.get("voice", "standard")
+    voice = request.args.get("voice", "standard")
 
-# 🔍 DEBUG
-print("RAW VOICE FROM REQUEST:", repr(voice))
+    # 🔍 DEBUG
+    print("RAW VOICE FROM REQUEST:", repr(voice))
 
-# 🔧 NORMALISE
-if isinstance(voice, str):
-voice = voice.strip().lower()
-else:
-voice = "standard"
+    # 🔧 NORMALISE
+    if isinstance(voice, str):
+        voice = voice.strip().lower()
+    else:
+        voice = "standard"
 
-print("NORMALISED VOICE:", repr(voice))
+    print("NORMALISED VOICE:", repr(voice))
 
-gender = request.args.get("gender")
-country = request.args.get("country")
-region = request.args.get("region")
+    gender = request.args.get("gender")
+    country = request.args.get("country")
+    region = request.args.get("region")
 
-print("VOICE CHECK:", voice == "elevenlabs")
-print("VOICE PARAM:", voice)
-print("GENDER:", gender, "COUNTRY:", country, "REGION:", region)
+    print("VOICE CHECK:", voice == "elevenlabs")
+    print("VOICE PARAM:", voice)
+    print("GENDER:", gender, "COUNTRY:", country, "REGION:", region)
 
-# 🔹 Prompt (BBC-style Spanish)
-prompt = """
-Create a Spanish news report for a language learner (B2-C1 level).
+    # 🔹 Prompt (BBC-style Spanish)
+    prompt = """
+    Create a Spanish news report for a language learner (B2-C1 level).
 
-Requirements:
-- Topic: current world news (politics, economy, environment, etc.)
-- Style: like a BBC news presenter
-- Tone: formal, clear, professional
-- Length: 5–7 sentences
-- Use natural spoken Spanish
+    Requirements:
+    - Topic: current world news (politics, economy, environment, etc.)
+    - Style: like a BBC news presenter
+    - Tone: formal, clear, professional
+    - Length: 5–7 sentences
+    - Use natural spoken Spanish
 
-Return ONLY a JSON array of sentences.
-Example:
-["Sentence 1", "Sentence 2", "Sentence 3"]
-"""
+    Return ONLY a JSON array of sentences.
+    Example:
+    ["Sentence 1", "Sentence 2", "Sentence 3"]
+    """
 
-response = client.chat.completions.create(
-model="gpt-4.1-mini",
-messages=[{"role": "user", "content": prompt}],
-temperature=0.7
-)
+    response = client.chat.completions.create(
+    model="gpt-4.1-mini",
+    messages=[{"role": "user", "content": prompt}],
+    temperature=0.7
+    )
 
-content = response.choices[0].message.content
+    content = response.choices[0].message.content
 
-# 🔹 Parse safely
-try:
-sentences = json.loads(content)
-except:
-sentences = [s.strip() for s in content.split(".") if s.strip()]
+    # 🔹 Parse safely
+    try:
+        sentences = json.loads(content)
+    except:
+        sentences = [s.strip() for s in content.split(".") if s.strip()]
 
-# 🔹 Save to DB
-conn = get_db()
-cur = conn.cursor()
+    # 🔹 Save to DB
+    conn = get_db()
+    cur = conn.cursor()
 
-title = sentences[0][:50] if sentences else "News report"
+    title = sentences[0][:50] if sentences else "News report"
 
-cur.execute("""
-INSERT INTO stories (title, topic, level, tense, content, mode)
-VALUES (%s, %s, %s, %s, %s, %s)
-RETURNING id
-""", (
-title,
-"news",
-"advanced",
-"mixed",
-json.dumps(sentences),
-"news"
-))
+    cur.execute("""
+    INSERT INTO stories (title, topic, level, tense, content, mode)
+    VALUES (%s, %s, %s, %s, %s, %s)
+    RETURNING id
+    """, (
+    title,
+    "news",
+    "advanced",
+    "mixed",
+    json.dumps(sentences),
+    "news"
+    ))
 
-story_id = cur.fetchone()[0]
+    story_id = cur.fetchone()[0]
 
-full_text = " ".join(sentences)
+    full_text = " ".join(sentences)
 
-print("FULL TEXT:", full_text)
+    print("FULL TEXT:", full_text)
 
-conn.commit()
-cur.close()
-conn.close()
+    conn.commit()
+    cur.close()
+    conn.close()
 
-print("VOICE RAW VALUE:", repr(voice))
+    print("VOICE RAW VALUE:", repr(voice))
 
-# 🔊 AUDIO LOGIC
-if voice == "elevenlabs":
-voice_id = get_voice_id(country, gender, region)
+    # 🔊 AUDIO LOGIC
+    if voice == "elevenlabs":
+        voice_id = get_voice_id(country, gender, region)
 
-print("🎤 USING ELEVENLABS")
-print("Voice ID:", voice_id)
+        print("🎤 USING ELEVENLABS")
+        print("Voice ID:", voice_id)
 
-audio = generate_elevenlabs_audio(full_text, voice_id)
+        audio = generate_elevenlabs_audio(full_text, voice_id)
 
-print("Audio returned:", audio is not None)
+        print("Audio returned:", audio is not None)
 
-else:
-print("⚠️ USING STANDARD VOICE")
-audio = None
+    else:
+        print("⚠️ USING STANDARD VOICE")
+        audio = None
 
-return jsonify({
-"sentences": sentences,
-"id": story_id,
-"audio": audio,
-"voice": voice
-})
+    return jsonify({
+    "sentences": sentences,
+    "id": story_id,
+    "audio": audio,
+    "voice": voice
+    })
 
 # ------------------------
 # Resume Listening Stories
 # ------------------------
 @app.route("/listening_resume")
 def listening_resume():
-story_id = request.args.get("id")
+    story_id = request.args.get("id")
 
-conn = get_db()
-cur = conn.cursor()
+    conn = get_db()
+    cur = conn.cursor()
 
-cur.execute("""
-SELECT content, progress_index, progress_results
-FROM stories
-WHERE id = %s
-""", (story_id,))
+    cur.execute("""
+    SELECT content, progress_index, progress_results
+    FROM stories
+    WHERE id = %s
+    """, (story_id,))
 
-row = cur.fetchone()
+    row = cur.fetchone()
 
-cur.close()
-conn.close()
+    cur.close()
+    conn.close()
 
-if not row:
-return "Story not found", 404
+    if not row:
+        return "Story not found", 404
 
-content, index, results = row
+    content, index, results = row
 
-# handle JSON safely
-if isinstance(content, str):
-content = json.loads(content)
+    # handle JSON safely
+    if isinstance(content, str):
+        content = json.loads(content)
 
-if isinstance(results, str):
-results = json.loads(results)
+    if isinstance(results, str):
+        results = json.loads(results)
 
-return render_template(
-"listening.html",
-resume_story=content,
-resume_index=index or 0,
-resume_results=results or [],
-resume_id=story_id
-)
+    return render_template(
+    "listening.html",
+    resume_story=content,
+    resume_index=index or 0,
+    resume_results=results or [],
+    resume_id=story_id
+    )
 
 # ------------------------
 # Run app
 # ------------------------
 if __name__ == "__main__":
-port = int(os.environ.get("PORT", 10000))
-app.run(host="0.0.0.0", port=port)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
 
