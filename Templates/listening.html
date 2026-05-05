@@ -137,7 +137,7 @@ button { padding: 10px 15px; border-radius: 8px; border: none; cursor: pointer; 
 
 <div id="listeningArea" style="display:none;">
     <div class="card">
-        <button onclick="playCurrent()">▶ Play</button>
+        <button onclick="replayAudio()">▶ Play</button>
 
         <textarea id="dictation" class="dictation-box"></textarea>
 
@@ -161,6 +161,7 @@ let listeningStory = [];
 let currentIndex = 0;
 let currentStoryId = null;
 let results = [];
+let currentAudioList = [];
 
 // ---------------- START ----------------
 async function startListening() {
@@ -258,13 +259,12 @@ async function startNewsListening() {
 function playAudio(data) {
 
     if (data.voice === "elevenlabs" && data.audio) {
-        console.log("🎧 Playing ElevenLabs audio");
+        console.log("🎧 Using ElevenLabs audio list");
 
-        const audio = new Audio("data:audio/mpeg;base64," + data.audio);
+        currentAudioList = data.audio;
+        currentIndex = 0;
 
-        audio.play().catch(err => {
-            console.error("Audio playback failed:", err);
-        });
+        playCurrentSentence();  // ✅ play first sentence
 
     } else {
         console.log("⚠️ Falling back to browser TTS");
@@ -273,14 +273,22 @@ function playAudio(data) {
 }
 
 function playCurrentSentence() {
+
+    if (!currentAudioList || currentIndex >= currentAudioList.length) {
+        console.log("⚠️ No audio available");
+        return;
+    }
+
     const audioBase64 = currentAudioList[currentIndex];
 
     if (audioBase64) {
         const audio = new Audio("data:audio/mpeg;base64," + audioBase64);
-        audio.play();
+        audio.play().catch(err => {
+            console.error("Audio playback failed:", err);
+        });
     } else {
-        console.log("⚠️ No ElevenLabs audio, fallback");
-        speakWithBrowser(listeningStory[currentIndex]);
+        console.log("⚠️ Missing ElevenLabs audio, fallback");
+        playCurrent();
     }
 }
 
@@ -335,10 +343,17 @@ async function checkDictation() {
 // ---------------- NEXT ----------------
 function nextListening() {
     currentIndex++;
+
     if (currentIndex < listeningStory.length) {
         dictationEl().value = "";
         feedbackEl().innerText = "";
-        playCurrent();
+
+        if (currentAudioList && currentAudioList.length > 0) {
+            playCurrentSentence();   // ✅ ElevenLabs
+        } else {
+            playCurrent();           // ✅ fallback
+        }
+
     } else {
         completeListening();
     }
@@ -370,6 +385,14 @@ async function loadListeningStories() {
     const res = await fetch(`/get_stories?mode=listening&topic=${topicEl().value}&level=${levelEl().value}&tense=${tenseEl().value}`);
     const stories = await res.json();
     renderStories(stories);
+}
+
+function replayAudio() {
+    if (currentAudioList && currentAudioList.length > 0) {
+        playCurrentSentence();
+    } else {
+        playCurrent();
+    }
 }
 
 function renderStories(stories) {
