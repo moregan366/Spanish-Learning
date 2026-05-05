@@ -328,134 +328,134 @@ def generate_story():
 # ------------------------
 @app.route("/get_stories")
 def get_stories():
-topic = request.args.get("topic") or ""
-level = request.args.get("level") or ""
-tense = request.args.get("tense") or ""
-mode = request.args.get("mode") or "writing"
+    topic = request.args.get("topic") or ""
+    level = request.args.get("level") or ""
+    tense = request.args.get("tense") or ""
+    mode = request.args.get("mode") or "writing"
 
-conn = get_db()
-cur = conn.cursor()
+    conn = get_db()
+    cur = conn.cursor()
 
-cur.execute("""
-SELECT id, title, content, score, feedback, progress_index, progress_results
-FROM stories
-WHERE 
-mode = %s
-AND TRIM(LOWER(topic)) = TRIM(LOWER(%s))
-AND TRIM(LOWER(level)) = TRIM(LOWER(%s))
-AND TRIM(LOWER(tense)) = TRIM(LOWER(%s))
-ORDER BY created_at DESC
-LIMIT 50
-""", (mode, topic, level, tense))
+    cur.execute("""
+    SELECT id, title, content, score, feedback, progress_index, progress_results
+    FROM stories
+    WHERE 
+    mode = %s
+    AND TRIM(LOWER(topic)) = TRIM(LOWER(%s))
+    AND TRIM(LOWER(level)) = TRIM(LOWER(%s))
+    AND TRIM(LOWER(tense)) = TRIM(LOWER(%s))
+    ORDER BY created_at DESC
+    LIMIT 50
+    """, (mode, topic, level, tense))
 
-rows = cur.fetchall()
+    rows = cur.fetchall()
 
-print("Rows from DB:", rows)  # 👈 debug (keep this)
+    print("Rows from DB:", rows)  # 👈 debug (keep this)
 
-stories = []
+    stories = []
 
-for r in rows:
-content = r[2]
+    for r in rows:
+    content = r[2]
 
-# ✅ Handle both string + jsonb safely
-if isinstance(content, str):
-try:
-content = json.loads(content)
-except:
-content = []  # fallback instead of crashing
+    # ✅ Handle both string + jsonb safely
+    if isinstance(content, str):
+        try:
+            content = json.loads(content)
+    except:
+            content = []  # fallback instead of crashing
 
-# ✅ Handle progress_results safely
-progress_results = []
-if r[6]:
-try:
-progress_results = json.loads(r[6])
-except:
-progress_results = []
+    # ✅ Handle progress_results safely
+    progress_results = []
+    if r[6]:
+        try:
+            progress_results = json.loads(r[6])
+        except:
+            progress_results = []
 
-# ✅ ALWAYS append (no skipping rows)
-stories.append({
-"id": r[0],
-"title": r[1],
-"content": content,
-"score": r[3],
-"feedback": r[4],
-"progress_index": r[5],
-"progress_results": progress_results
-})
+    # ✅ ALWAYS append (no skipping rows)
+    stories.append({
+    "id": r[0],
+    "title": r[1],
+    "content": content,
+    "score": r[3],
+    "feedback": r[4],
+    "progress_index": r[5],
+    "progress_results": progress_results
+    })
 
-cur.close()
-conn.close()
+    cur.close()
+    conn.close()
 
-return jsonify(stories)
+    return jsonify(stories)
 
 # ------------------------
 # Check Writing
 # ------------------------
 @app.route("/check_writing", methods=["POST"])
 def check_writing():
-data = request.json
-user = data["user"].strip()
-correct = data["correct"].strip()
+    data = request.json
+    user = data["user"].strip()
+    correct = data["correct"].strip()
 
-prompt = f"""
-You are a Spanish teacher.
+    prompt = f"""
+    You are a Spanish teacher.
 
-A student is translating a sentence into Spanish.
+    A student is translating a sentence into Spanish.
 
-Correct answer:
-"{correct}"
+    Correct answer:
+    "{correct}"
 
-Student answer:
-"{user}"
+    Student answer:
+    "{user}"
 
-Your job:
+    Your job:
 
-1. Decide if the student's answer is ACCEPTABLE.
-- Allow small variations (synonyms, word order, etc.)
-- Ignore missing punctuation like full stops
-- Minor grammar mistakes can still be acceptable if meaning is clear
+    1. Decide if the student's answer is ACCEPTABLE.
+    - Allow small variations (synonyms, word order, etc.)
+    - Ignore missing punctuation like full stops
+    - Minor grammar mistakes can still be acceptable if meaning is clear
 
-2. If acceptable → return:
-CORRECT
+    2. If acceptable → return:
+    CORRECT
 
-3. If not acceptable → return:
-INCORRECT: followed by a short, helpful explanation and the improved version
+    3. If not acceptable → return:
+    INCORRECT: followed by a short, helpful explanation and the improved version
 
-Be encouraging and educational.
-Keep feedback concise.
+    Be encouraging and educational.
+    Keep feedback concise.
 
-Also briefly explain the key mistake (e.g. tense, gender, verb choice).
+    Also briefly explain the key mistake (e.g. tense, gender, verb choice).
 
-Examples:
+    Examples:
 
-CORRECT
+    CORRECT
 
-INCORRECT: You used the wrong verb tense. A better answer would be "Voy a la tienda."
-"""
+    INCORRECT: You used the wrong verb tense. A better answer would be "Voy a la tienda."
+    """
 
-try:
-response = client.chat.completions.create(
-model="gpt-4.1-mini",
-messages=[{"role": "user", "content": prompt}]
-)
+    try:
+    response = client.chat.completions.create(
+    model="gpt-4.1-mini",
+    messages=[{"role": "user", "content": prompt}]
+    )
 
-result = response.choices[0].message.content.strip()
+    result = response.choices[0].message.content.strip()
 
-if result.startswith("CORRECT"):
-return jsonify({"correct": True})
-else:
-feedback = result.replace("INCORRECT:", "").strip()
-return jsonify({
-"correct": False,
-"feedback": feedback
-})
+    if result.startswith("CORRECT"):
+        return jsonify({"correct": True})
+    else:
+        feedback = result.replace("INCORRECT:", "").strip()
+        return jsonify({
+        "correct": False,
+        "feedback": feedback
+    })
 
-except Exception as e:
-print("ERROR in check_writing:", e)
-return jsonify({
-"correct": False,
-"feedback": "Error checking answer. Try again."
-})
+    except Exception as e:
+    print("ERROR in check_writing:", e)
+    return jsonify({
+    "correct": False,
+    "feedback": "Error checking answer. Try again."
+    })
 
 # ------------------------
 # Complete Story
