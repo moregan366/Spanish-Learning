@@ -470,68 +470,68 @@ def complete_story():
         correct_count = sum(1 for r in results if r["correct"])
         score = int((correct_count / total) * 100) if total > 0 else 0
 
-    # Build AI summary
-    mistakes = [
-    f'User: {r["user"]} | Correct: {r["correctAnswer"]}'
-    for r in results if not r["correct"]
-    ]
+        # Build AI summary
+        mistakes = [
+        f'User: {r["user"]} | Correct: {r["correctAnswer"]}'
+        for r in results if not r["correct"]
+        ]
 
-    mistake_text = "\n".join(mistakes[:5]) or "None"
+        mistake_text = "\n".join(mistakes[:5]) or "None"
 
-    prompt = f"""
-    You are a Spanish teacher.
+        prompt = f"""
+        You are a Spanish teacher.
 
-    A student completed a writing exercise.
+        A student completed a writing exercise.
 
-    Score: {score}%
+        Score: {score}%
 
-    Here are some of their mistakes:
-    {mistake_text}
+        Here are some of their mistakes:
+        {mistake_text}
 
-    Write a short summary of:
-    - What they did well
-    - What they should focus on improving
+        Write a short summary of:
+        - What they did well
+        - What they should focus on improving
 
-    Keep it concise and encouraging.
-    """
+        Keep it concise and encouraging.
+        """
 
-    response = client.chat.completions.create(
-    model="gpt-4.1-mini",
-    messages=[{"role": "user", "content": prompt}]
-    )
+        response = client.chat.completions.create(
+        model="gpt-4.1-mini",
+        messages=[{"role": "user", "content": prompt}]
+        )
 
-    feedback = response.choices[0].message.content.strip()
+        feedback = response.choices[0].message.content.strip()
 
-    # Save to DB
-    conn = get_db()
-    cur = conn.cursor()
+        # Save to DB
+        conn = get_db()
+        cur = conn.cursor()
 
-    cur.execute("""
-    UPDATE stories
-    SET score = %s,
-    feedback = %s
-    WHERE id = (
-    SELECT id FROM stories
-    WHERE LOWER(topic)=LOWER(%s)
-    AND LOWER(level)=LOWER(%s)
-    AND LOWER(tense)=LOWER(%s)
-    ORDER BY created_at DESC
-    LIMIT 1
-    )
-    """, (score, feedback, data["topic"], data["level"], data["tense"]))
+        cur.execute("""
+        UPDATE stories
+        SET score = %s,
+            feedback = %s
+        WHERE id = (
+            SELECT id FROM stories
+            WHERE LOWER(topic)=LOWER(%s)
+                AND LOWER(level)=LOWER(%s)
+                AND LOWER(tense)=LOWER(%s)
+            ORDER BY created_at DESC
+            LIMIT 1
+            )
+        """, (score, feedback, data["topic"], data["level"], data["tense"]))
 
-    conn.commit()
-    cur.close()
-    conn.close()
+        conn.commit()
+        cur.close()
+        conn.close()
 
-    return jsonify({
-    "score": score,
-    "feedback": feedback
-    })
+        return jsonify({
+            "score": score,
+            "feedback": feedback
+         })
 
     except Exception as e:
-    print("ERROR in complete_story:", e)
-    return jsonify({"error": str(e)}), 500
+        print("ERROR in complete_story:", e)
+        return jsonify({"error": str(e)}), 500
 
 # ------------------------
 # Results page
