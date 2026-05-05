@@ -56,7 +56,7 @@ def get_voice_id(country, gender, region):
         return VOICE_MAP["spain"]["female"]["default"]
 
 def generate_elevenlabs_audio(text, voice_id):
-    print("🔥 ELEVENLABS FUNCTION HIT 🔥")
+    print("🔥 ELEVENLABS FUNCTION HIT 🔥", flush=True)
     print("TEXT PREVIEW:", text[:100] if text else "EMPTY")
     print("TEXT LENGTH:", len(text) if text else 0)
     print("VOICE ID:", voice_id)
@@ -600,15 +600,7 @@ def save_progress(id):
 # ------------------------
 @app.route("/generate_listening")
 def generate_listening():
-    return "TEST ROUTE"
-
-
-# ------------------------
-# Generate Listening News Stories
-# ------------------------
-@app.route("/generate_news")
-def generate_news():
-    print("NEWS HIT")
+    print("LISTENING HIT", flush=True)
     voice = request.args.get("voice", "standard")
 
     # 🔍 DEBUG
@@ -625,8 +617,128 @@ def generate_news():
     gender = request.args.get("gender")
     country = request.args.get("country")
     region = request.args.get("region")
+    topic = request.args.get("topic")
+    level = request.args.get("level")
+    tense = request.args.get("tense")
 
     print("VOICE CHECK:", voice == "elevenlabs")
+    print("VOICE VALUE:", voice)
+    print("GENDER:", gender, "COUNTRY:", country, "REGION:", region)
+
+    prompt = f"""
+    You are creating a Spanish listening exercise.
+
+    Level: {level}
+    Topic: {topic}
+    Tense: {tense}
+
+    Requirements:
+
+    - For A1–B1: simple, everyday sentences
+    - For B2–C2: interesting, realistic, engaging content (news, stories, real-life situations)
+
+    - Generate a short passage of 3–5 sentences
+    - Sentences should be connected and natural
+    - Spanish ONLY (no English)
+
+    Return as JSON list like:
+    ["sentence 1", "sentence 2", ...]
+    """
+
+    response = client.chat.completions.create(
+    model="gpt-4.1-mini",
+    messages=[{"role": "user", "content": prompt}]
+    )
+
+    text = response.choices[0].message.content.strip()
+
+    # ✅ Parse AI output safely
+    try:
+        sentences = json.loads(text)
+    except:
+        sentences = [s.strip() for s in text.split("\n") if s.strip()]
+
+    # ✅ Convert to story format
+    story = [{"spanish": s, "english": ""} for s in sentences]
+
+    # ✅ Save to DB
+    conn = get_db()
+    cur = conn.cursor()
+
+    title = sentences[0][:40] if sentences else "Listening exercise"
+
+    cur.execute("""
+    INSERT INTO stories (title, topic, level, tense, content, mode)
+    VALUES (%s, %s, %s, %s, %s, %s)
+    RETURNING id
+    """, (
+    title,
+    topic,
+    level,
+    tense,
+    json.dumps(story),
+    "listening"
+    ))
+
+    story_id = cur.fetchone()[0]
+
+    full_text = " ".join(sentences)
+
+    print("FULL TEXT:", full_text)
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    print("VOICE FINAL VALUE:", repr(voice), flush=True)
+    print("VOICE == elevenlabs:", voice == "elevenlabs", flush=True)
+
+    # 🔊 AUDIO LOGIC
+    if voice == "elevenlabs":
+        voice_id = get_voice_id(country, gender, region)
+
+        print("🎤 USING ELEVENLABS")
+        print("Voice ID:", voice_id)
+
+        audio = generate_elevenlabs_audio(full_text, voice_id)
+
+        print("Audio returned:", audio is not None)
+
+    else:
+        print("⚠️ USING STANDARD VOICE")
+        audio = None
+
+    return jsonify({
+    "sentences": sentences,
+    "id": story_id,
+    "audio": audio,
+    "voice": voice
+    })
+
+# ------------------------
+# Generate Listening News Stories
+# ------------------------
+@app.route("/generate_news")
+def generate_news():
+    print("NEWS HIT")
+    voice = request.args.get("voice", "standard")
+
+    # 🔍 DEBUG
+    print("RAW VOICE FROM REQUEST:", repr(voice), flush=True)
+
+    # 🔧 NORMALISE
+    if isinstance(voice, str):
+        voice = voice.strip().lower()
+    else:
+        voice = "standard"
+
+    print("NORMALISED VOICE:", repr(voice))
+
+    gender = request.args.get("gender")
+    country = request.args.get("country")
+    region = request.args.get("region")
+
+    print("VOICE CHECK:", voice == "elevenlabs", flush=True)
     print("VOICE PARAM:", voice)
     print("GENDER:", gender, "COUNTRY:", country, "REGION:", region)
 
