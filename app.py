@@ -355,7 +355,7 @@ def get_stories():
     stories = []
 
     for r in rows:
-    content = r[2]
+        content = r[2]
 
     # ✅ Handle both string + jsonb safely
     if isinstance(content, str):
