@@ -66,17 +66,13 @@ def get_voice_id(country, gender, region):
         return VOICE_MAP["spain"]["female"]["default"]
 
 def generate_elevenlabs_audio(text, voice_id):
-    print("🔥 ELEVENLABS FUNCTION HIT 🔥")
-    
+    print("🔥 ELEVENLABS FUNCTION HIT🔥")
+
     api_key = os.getenv("ELEVENLABS_API_KEY")
-
-    print("🔑 API KEY EXISTS:", bool(api_key))
-
-    if not api_key:
-        print("❌ NO ELEVENLABS API KEY")
-        return None
+    print("API KEY EXISTS:", api_key is not None)
 
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+    print("URL:", url)
 
     headers = {
         "xi-api-key": api_key,
@@ -90,12 +86,14 @@ def generate_elevenlabs_audio(text, voice_id):
 
     response = requests.post(url, json=data, headers=headers)
 
-    print("🔥 ELEVENLABS STATUS:", response.status_code)
-    print("🔥 ELEVENLABS RESPONSE:", response.text[:200])
+    print("STATUS:", response.status_code)
+    print("RESPONSE TEXT:", response.text[:300])
 
     if response.status_code != 200:
+        print("❌ ELEVENLABS FAILED")
         return None
 
+    print("✅ ELEVENLABS SUCCESS")
     return base64.b64encode(response.content).decode("utf-8")
 
 from openai import OpenAI
@@ -600,7 +598,8 @@ def save_progress(id):
 @app.route("/generate_listening")
 def generate_listening():
 
-    voice = (request.args.get("voice") or "standard").strip().lower()
+    voice = request.args.get("voice", "standard")
+    voice = voice.strip().lower() if isinstance(voice, str) else "standard"
     gender = request.args.get("gender")
     country = request.args.get("country")
     region = request.args.get("region")
@@ -608,9 +607,10 @@ def generate_listening():
     level = request.args.get("level")
     tense = request.args.get("tense")
 
+    print("VOICE CHECK:", voice == "elevenlabs")
     print("VOICE PARAM:", voice)
     print("GENDER:", gender, "COUNTRY:", country, "REGION:", region) 
-    print("VOICE RECEIVED:", voice)
+    print("VOICE RECEIVED RAW:", repr(voice))
 
     prompt = f"""
 You are creating a Spanish listening exercise.
@@ -702,12 +702,14 @@ Return as JSON list like:
 # ------------------------
 @app.route("/generate_news")
 def generate_news():
-    voice = (request.args.get("voice") or "standard").strip().lower()
+    voice = request.args.get("voice", "standard")
+    voice = voice.strip().lower() if isinstance(voice, str) else "standard"
     gender = request.args.get("gender")
     country = request.args.get("country")
     region = request.args.get("region")
 
-    print("VOICE RECEIVED:", voice)
+    print("VOICE CHECK:", voice == "elevenlabs")
+    print("VOICE RECEIVED RAW:", repr(voice))
 
     import json
     from openai import OpenAI
