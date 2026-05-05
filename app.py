@@ -1,16 +1,16 @@
-from flask import Flask, request, jsonify, render_template
-from flask_cors import CORS
-
-import os
-import json
-import psycopg2
-import random
-import requests
-import base64
-
-print("🚨 NEW VERSION IS LIVE 🚨")
-
-VOICE_MAP = {
+    from flask import Flask, request, jsonify, render_template
+    from flask_cors import CORS
+    
+    import os
+    import json
+    import psycopg2
+    import random
+    import requests
+    import base64
+    
+    print("🚨 NEW VERSION IS LIVE 🚨")
+    
+    VOICE_MAP = {
     "spain": {
         "female": {
             "default": "SDVJaMLoJa7wc3s2sn7d",   # good Spanish female
@@ -47,50 +47,46 @@ VOICE_MAP = {
             "default": "vgekQLm3GYiKMHUnPVvY"
         }
     }
-}
-
-def get_voice_id(country, gender, region):
+    }
+    
+    def get_voice_id(country, gender, region):
     country = (country or "spain").lower()
     gender = (gender or "female").lower()
     region = (region or "default").lower()
-
+    
     try:
         voices = VOICE_MAP[country][gender]
-
+    
         # region-specific if exists
         if region in voices:
             return voices[region]
-
+    
         return voices["default"]
-
+    
     except KeyError:
         # fallback (VERY important)
         return VOICE_MAP["spain"]["female"]["default"]
-
-def generate_elevenlabs_audio(text, voice_id):
+    
+    def generate_elevenlabs_audio(text, voice_id):
     print("🔥 ELEVENLABS FUNCTION HIT 🔥")
-
-    # --- DEBUG INPUTS ---
+    
     print("TEXT PREVIEW:", text[:100] if text else "EMPTY")
     print("TEXT LENGTH:", len(text) if text else 0)
     print("VOICE ID:", voice_id)
-
-    # --- SAFETY CHECK ---
+    
     if not text:
         print("❌ ERROR: TEXT IS EMPTY")
         return None
-
-    # --- API KEY ---
+    
     api_key = os.getenv("ELEVENLABS_API_KEY")
     print("API KEY EXISTS:", bool(api_key))
-
+    
     if not api_key:
         print("❌ ERROR: ELEVENLABS_API_KEY is missing")
         return None
-
-    # --- REQUEST ---
+    
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
-
+    
     try:
         response = requests.post(
             url,
@@ -104,85 +100,83 @@ def generate_elevenlabs_audio(text, voice_id):
             },
             timeout=20
         )
-
-        # --- DEBUG RESPONSE ---
+    
         print("STATUS:", response.status_code)
         print("RESPONSE (first 200 chars):", response.text[:200])
-
+    
         if response.status_code != 200:
             print("❌ ElevenLabs request failed")
             return None
-
+    
         print("✅ AUDIO GENERATED SUCCESSFULLY")
-
-        # --- RETURN BASE64 AUDIO ---
+    
         return base64.b64encode(response.content).decode("utf-8")
-
+    
     except Exception as e:
-        print("❌ EXCEPTION DURING ELEVENLABS CALL:", str(e))
+        print("❌ EXCEPTION:", str(e))
         return None
-
-from openai import OpenAI
-
-api_key = os.getenv("OPENAI_API_KEY")
-
-if not api_key:
+    
+    from openai import OpenAI
+    
+    api_key = os.getenv("OPENAI_API_KEY")
+    
+    if not api_key:
     raise ValueError("OPENAI_API_KEY not set in environment variables")
-
-client = OpenAI(api_key=api_key)
-
-app = Flask(__name__, template_folder="Templates")
-CORS(app)
-
-# Get database URL from Render environment
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-def get_db():
+    
+    client = OpenAI(api_key=api_key)
+    
+    app = Flask(__name__, template_folder="Templates")
+    CORS(app)
+    
+    # Get database URL from Render environment
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    
+    def get_db():
     return psycopg2.connect(DATABASE_URL, sslmode='require')
-
-# ------------------------
-# Home page (UI)
-# ------------------------
-
-@app.route("/")
-def home():
+    
+    # ------------------------
+    # Home page (UI)
+    # ------------------------
+    
+    @app.route("/")
+    def home():
     return render_template("index.html")
-
-# ------------------------
-# Add flashcard
-# ------------------------
-@app.route("/add_flashcard", methods=["POST"])
-def add_flashcard():
+    
+    # ------------------------
+    # Add flashcard
+    # ------------------------
+    @app.route("/add_flashcard", methods=["POST"])
+    def add_flashcard():
     data = request.json
-
+    
     english = data["front"]
     spanish = data["back"]
-
+    
     conn = get_db()
     cur = conn.cursor()
-
+    
     cur.execute(
         'INSERT INTO "Flashcards" ("English", "Spanish") VALUES (%s, %s)',
         (english, spanish)
     )
-
+    
     conn.commit()
     cur.close()
     conn.close()
-
+    
     return jsonify({"status": "success"})
-
-# ------------------------
-# Get all flashcards
-# ------------------------
-@app.route("/cards", methods=["GET"])
-def get_cards():
+    
+    # ------------------------
+    # Get all flashcards
+    # ------------------------
+    @app.route("/cards", methods=["GET"])
+    def get_cards():
     conn = get_db()
     cur = conn.cursor()
-
+    
     cur.execute('SELECT id, "Spanish", "English" FROM "Flashcards"')
     rows = cur.fetchall()
-
+    
     cards = []
     for row in rows:
         cards.append({
@@ -190,51 +184,51 @@ def get_cards():
             "front": row[1],
             "back": row[2]
         })
-
+    
     cur.close()
     conn.close()
-
+    
     return jsonify(cards)
-
-# ------------------------
-# Delete card
-# ------------------------
-@app.route("/delete/<int:id>", methods=["DELETE"])
-def delete_card(id):
+    
+    # ------------------------
+    # Delete card
+    # ------------------------
+    @app.route("/delete/<int:id>", methods=["DELETE"])
+    def delete_card(id):
     conn = get_db()
     cur = conn.cursor()
-
+    
     cur.execute('DELETE FROM "Flashcards" WHERE id = %s', (id,))
     conn.commit()
-
+    
     cur.close()
     conn.close()
-
+    
     return jsonify({"message": "Card deleted"})
-
-# ------------------------
-# Delete card
-# ------------------------
-@app.route("/quiz")
-def quiz():
+    
+    # ------------------------
+    # Delete card
+    # ------------------------
+    @app.route("/quiz")
+    def quiz():
     return render_template("quiz.html")
-
-# ------------------------
-# Spanish Writing
-# ------------------------
-@app.route("/writing")
-def writing():
+    
+    # ------------------------
+    # Spanish Writing
+    # ------------------------
+    @app.route("/writing")
+    def writing():
     return render_template("writing.html")
-
-# ------------------------
-# Generate Story
-# ------------------------
-@app.route("/generate_story")
-def generate_story():
+    
+    # ------------------------
+    # Generate Story
+    # ------------------------
+    @app.route("/generate_story")
+    def generate_story():
     topic = request.args.get("topic")
     level = request.args.get("level")
     tense = request.args.get("tense")
-
+    
     conn = get_db()
     cur = conn.cursor()
     
@@ -247,10 +241,10 @@ def generate_story():
     ORDER BY created_at DESC
     LIMIT 5
     """, (topic, level, tense))
-
+    
     existing = [r[0] for r in cur.fetchall()]
     existing_text = "\n".join(str(e) for e in existing)
-
+    
     cur.close()
     conn.close()
     
@@ -264,14 +258,14 @@ def generate_story():
     
     prompt = f"""
     Create a Spanish learning story.
-
+    
     Topic: {topic}
     Level: {level}
     Tense: {tense}
-
+    
     IMPORTANT:
     Do NOT repeat or resemble any of these previous stories:
-
+    
     ---
     {existing_text}
     ---
@@ -280,19 +274,19 @@ def generate_story():
     - Using a different setting (e.g. airport, hotel, restaurant, city walk)
     - Using different verbs and vocabulary
     - Avoiding phrases like "I travel to Spain"
-
+    
     Story idea: {random_hint}
-
+    
     Keep it appropriate for {level} learners.
-
+    
     Generate EXACTLY 10 short, connected sentences that form a coherent story.
-
+    
     Each line MUST follow this format:
     English | Spanish
-
+    
     Do not include numbering.
     Do not include extra text.
-
+    
     Example:
     I go to the store. | Voy a la tienda.
     """
@@ -301,12 +295,12 @@ def generate_story():
         model="gpt-4.1-mini",
         messages=[{"role": "user", "content": prompt}]
     )
-
+    
     text = response.choices[0].message.content
-
+    
     story = []
     lines = text.split("\n")
-
+    
     for line in lines:
         if "|" in line:
             english, spanish = line.split("|", 1)
@@ -314,14 +308,14 @@ def generate_story():
                 "english": english.strip(),
                 "spanish": spanish.strip()
             })
-
+    
     # ✅ SAVE STORY (FIXED)
-
+    
     conn = get_db()
     cur = conn.cursor()
-
+    
     title = story[0]["english"][:40] if story else "Untitled story"
-
+    
     cur.execute("""
         INSERT INTO stories (title, topic, level, tense, content)
         VALUES (%s, %s, %s, %s, %s)
@@ -333,31 +327,31 @@ def generate_story():
         tense,
         json.dumps(story)
     ))
-
+    
     story_id = cur.fetchone()[0]
-
+    
     conn.commit()
     cur.close()
     conn.close()
-
+    
     return jsonify({
         "story": story,
         "id": story_id
     })
-
-# ------------------------
-# Get Stories
-# ------------------------
-@app.route("/get_stories")
-def get_stories():
+    
+    # ------------------------
+    # Get Stories
+    # ------------------------
+    @app.route("/get_stories")
+    def get_stories():
     topic = request.args.get("topic") or ""
     level = request.args.get("level") or ""
     tense = request.args.get("tense") or ""
     mode = request.args.get("mode") or "writing"
-
+    
     conn = get_db()
     cur = conn.cursor()
-
+    
     cur.execute("""
         SELECT id, title, content, score, feedback, progress_index, progress_results
         FROM stories
@@ -369,23 +363,23 @@ def get_stories():
         ORDER BY created_at DESC
         LIMIT 50
     """, (mode, topic, level, tense))
-
+    
     rows = cur.fetchall()
-
+    
     print("Rows from DB:", rows)  # 👈 debug (keep this)
-
+    
     stories = []
-
+    
     for r in rows:
         content = r[2]
-
+    
         # ✅ Handle both string + jsonb safely
         if isinstance(content, str):
             try:
                 content = json.loads(content)
             except:
                 content = []  # fallback instead of crashing
-
+    
         # ✅ Handle progress_results safely
         progress_results = []
         if r[6]:
@@ -393,7 +387,7 @@ def get_stories():
                 progress_results = json.loads(r[6])
             except:
                 progress_results = []
-
+    
         # ✅ ALWAYS append (no skipping rows)
         stories.append({
             "id": r[0],
@@ -404,65 +398,65 @@ def get_stories():
             "progress_index": r[5],
             "progress_results": progress_results
         })
-
+    
     cur.close()
     conn.close()
-
+    
     return jsonify(stories)
-
-# ------------------------
-# Check Writing
-# ------------------------
-@app.route("/check_writing", methods=["POST"])
-def check_writing():
+    
+    # ------------------------
+    # Check Writing
+    # ------------------------
+    @app.route("/check_writing", methods=["POST"])
+    def check_writing():
     data = request.json
     user = data["user"].strip()
     correct = data["correct"].strip()
-
+    
     prompt = f"""
-You are a Spanish teacher.
-
-A student is translating a sentence into Spanish.
-
-Correct answer:
-"{correct}"
-
-Student answer:
-"{user}"
-
-Your job:
-
-1. Decide if the student's answer is ACCEPTABLE.
-   - Allow small variations (synonyms, word order, etc.)
-   - Ignore missing punctuation like full stops
-   - Minor grammar mistakes can still be acceptable if meaning is clear
-
-2. If acceptable → return:
-CORRECT
-
-3. If not acceptable → return:
-INCORRECT: followed by a short, helpful explanation and the improved version
-
-Be encouraging and educational.
-Keep feedback concise.
-
-Also briefly explain the key mistake (e.g. tense, gender, verb choice).
-
-Examples:
-
-CORRECT
-
-INCORRECT: You used the wrong verb tense. A better answer would be "Voy a la tienda."
-"""
-
+    You are a Spanish teacher.
+    
+    A student is translating a sentence into Spanish.
+    
+    Correct answer:
+    "{correct}"
+    
+    Student answer:
+    "{user}"
+    
+    Your job:
+    
+    1. Decide if the student's answer is ACCEPTABLE.
+    - Allow small variations (synonyms, word order, etc.)
+    - Ignore missing punctuation like full stops
+    - Minor grammar mistakes can still be acceptable if meaning is clear
+    
+    2. If acceptable → return:
+    CORRECT
+    
+    3. If not acceptable → return:
+    INCORRECT: followed by a short, helpful explanation and the improved version
+    
+    Be encouraging and educational.
+    Keep feedback concise.
+    
+    Also briefly explain the key mistake (e.g. tense, gender, verb choice).
+    
+    Examples:
+    
+    CORRECT
+    
+    INCORRECT: You used the wrong verb tense. A better answer would be "Voy a la tienda."
+    """
+    
     try:
         response = client.chat.completions.create(
             model="gpt-4.1-mini",
             messages=[{"role": "user", "content": prompt}]
         )
-
+    
         result = response.choices[0].message.content.strip()
-
+    
         if result.startswith("CORRECT"):
             return jsonify({"correct": True})
         else:
@@ -471,63 +465,63 @@ INCORRECT: You used the wrong verb tense. A better answer would be "Voy a la tie
                 "correct": False,
                 "feedback": feedback
             })
-
+    
     except Exception as e:
         print("ERROR in check_writing:", e)
         return jsonify({
             "correct": False,
             "feedback": "Error checking answer. Try again."
         })
-
-# ------------------------
-# Complete Story
-# ------------------------
-@app.route("/complete_story", methods=["POST"])
-def complete_story():
+    
+    # ------------------------
+    # Complete Story
+    # ------------------------
+    @app.route("/complete_story", methods=["POST"])
+    def complete_story():
     try:
         data = request.json
         results = data["results"]
-
+    
         total = len(results)
         correct_count = sum(1 for r in results if r["correct"])
         score = int((correct_count / total) * 100) if total > 0 else 0
-
+    
         # Build AI summary
         mistakes = [
             f'User: {r["user"]} | Correct: {r["correctAnswer"]}'
             for r in results if not r["correct"]
         ]
-
+    
         mistake_text = "\n".join(mistakes[:5]) or "None"
-
+    
         prompt = f"""
-You are a Spanish teacher.
-
-A student completed a writing exercise.
-
-Score: {score}%
-
-Here are some of their mistakes:
-{mistake_text}
-
-Write a short summary of:
-- What they did well
-- What they should focus on improving
-
-Keep it concise and encouraging.
-"""
-
+    You are a Spanish teacher.
+    
+    A student completed a writing exercise.
+    
+    Score: {score}%
+    
+    Here are some of their mistakes:
+    {mistake_text}
+    
+    Write a short summary of:
+    - What they did well
+    - What they should focus on improving
+    
+    Keep it concise and encouraging.
+    """
+    
         response = client.chat.completions.create(
             model="gpt-4.1-mini",
             messages=[{"role": "user", "content": prompt}]
         )
-
+    
         feedback = response.choices[0].message.content.strip()
-
+    
         # Save to DB
         conn = get_db()
         cur = conn.cursor()
-
+    
         cur.execute("""
             UPDATE stories
             SET score = %s,
@@ -541,155 +535,154 @@ Keep it concise and encouraging.
                 LIMIT 1
             )
         """, (score, feedback, data["topic"], data["level"], data["tense"]))
-
+    
         conn.commit()
         cur.close()
         conn.close()
-
+    
         return jsonify({
             "score": score,
             "feedback": feedback
         })
-
+    
     except Exception as e:
         print("ERROR in complete_story:", e)
         return jsonify({"error": str(e)}), 500
-
-# ------------------------
-# Results page
-# ------------------------
-@app.route("/results")
-def results_page():
+    
+    # ------------------------
+    # Results page
+    # ------------------------
+    @app.route("/results")
+    def results_page():
     score = request.args.get("score")
     feedback = request.args.get("feedback")
-
+    
     return render_template("results.html", score=score, feedback=feedback)
-
-# ------------------------
-# Spanish Listening Page
-# ------------------------
-@app.route("/listening")
-def listening():
+    
+    # ------------------------
+    # Spanish Listening Page
+    # ------------------------
+    @app.route("/listening")
+    def listening():
     return render_template("listening.html")
-
-# ------------------------
-# Delete Story
-# ------------------------
-@app.route("/delete_story/<int:id>", methods=["DELETE"])
-def delete_story(id):
+    
+    # ------------------------
+    # Delete Story
+    # ------------------------
+    @app.route("/delete_story/<int:id>", methods=["DELETE"])
+    def delete_story(id):
     try:
         conn = get_db()
         cur = conn.cursor()
-
+    
         cur.execute("DELETE FROM stories WHERE id = %s", (id,))
         conn.commit()
-
+    
         cur.close()
         conn.close()
-
+    
         return jsonify({"status": "deleted"})
-
+    
     except Exception as e:
         print("ERROR deleting story:", e)
         return jsonify({"error": str(e)}), 500
-
-# ------------------------
-# Save Progress
-# ------------------------
-@app.route("/save_progress/<int:id>", methods=["POST"])
-def save_progress(id):
+    
+    # ------------------------
+    # Save Progress
+    # ------------------------
+    @app.route("/save_progress/<int:id>", methods=["POST"])
+    def save_progress(id):
     data = request.json
     index = data.get("index", 0)
     results = json.dumps(data.get("results", []))
-
+    
     conn = get_db()
     cur = conn.cursor()
-
+    
     cur.execute("""
         UPDATE stories
         SET progress_index = %s,
             progress_results = %s
         WHERE id = %s
     """, (index, results, id))
-
+    
     conn.commit()
     cur.close()
     conn.close()
-
+    
     return jsonify({"status": "saved"})
-
-# ------------------------
-# Spanish Listening
-# ------------------------
-@app.route("/generate_listening")
-def generate_listening():
+    
+    # ------------------------
+    # Spanish Listening
+    # ------------------------
+    @app.route("/generate_listening")
+    def generate_listening():
     voice = request.args.get("voice", "standard")
-
-    # 🔍 DEBUG (critical)
+    
+    # 🔍 DEBUG
     print("RAW VOICE FROM REQUEST:", repr(voice))
-
+    
     # 🔧 NORMALISE
     if isinstance(voice, str):
         voice = voice.strip().lower()
     else:
         voice = "standard"
-
-    print("NORMALISED VOICE:", repr(voice))  
+    
+    print("NORMALISED VOICE:", repr(voice))
+    
     gender = request.args.get("gender")
     country = request.args.get("country")
     region = request.args.get("region")
     topic = request.args.get("topic")
     level = request.args.get("level")
     tense = request.args.get("tense")
-
+    
     print("VOICE CHECK:", voice == "elevenlabs")
-    print("VOICE PARAM:", voice)
-    print("GENDER:", gender, "COUNTRY:", country, "REGION:", region) 
-    print("VOICE RECEIVED RAW:", repr(voice))
-
+    print("VOICE VALUE:", voice)
+    print("GENDER:", gender, "COUNTRY:", country, "REGION:", region)
+    
     prompt = f"""
-You are creating a Spanish listening exercise.
-
-Level: {level}
-Topic: {topic}
-Tense: {tense}
-
-Requirements:
-
-- For A1–B1: simple, everyday sentences
-- For B2–C2: interesting, realistic, engaging content (news, stories, real-life situations)
-
-- Generate a short passage of 3–5 sentences
-- Sentences should be connected and natural
-- Spanish ONLY (no English)
-
-Return as JSON list like:
-["sentence 1", "sentence 2", ...]
-"""
-
+    You are creating a Spanish listening exercise.
+    
+    Level: {level}
+    Topic: {topic}
+    Tense: {tense}
+    
+    Requirements:
+    
+    - For A1–B1: simple, everyday sentences
+    - For B2–C2: interesting, realistic, engaging content (news, stories, real-life situations)
+    
+    - Generate a short passage of 3–5 sentences
+    - Sentences should be connected and natural
+    - Spanish ONLY (no English)
+    
+    Return as JSON list like:
+    ["sentence 1", "sentence 2", ...]
+    """
+    
     response = client.chat.completions.create(
         model="gpt-4.1-mini",
         messages=[{"role": "user", "content": prompt}]
     )
-
-    import json
+    
     text = response.choices[0].message.content.strip()
-
+    
     # ✅ Parse AI output safely
     try:
         sentences = json.loads(text)
     except:
         sentences = [s.strip() for s in text.split("\n") if s.strip()]
-
-    # ✅ Convert to story format (same as writing)
+    
+    # ✅ Convert to story format
     story = [{"spanish": s, "english": ""} for s in sentences]
-
+    
     # ✅ Save to DB
     conn = get_db()
     cur = conn.cursor()
-
+    
     title = sentences[0][:40] if sentences else "Listening exercise"
-
+    
     cur.execute("""
         INSERT INTO stories (title, topic, level, tense, content, mode)
         VALUES (%s, %s, %s, %s, %s, %s)
@@ -702,183 +695,183 @@ Return as JSON list like:
         json.dumps(story),
         "listening"
     ))
-
+    
     story_id = cur.fetchone()[0]
-
+    
     full_text = " ".join(sentences)
-
+    
     print("FULL TEXT:", full_text)
-
+    
     conn.commit()
     cur.close()
     conn.close()
-
-    print("VOICE RAW VALUE:", repr(voice))
     
+    print("VOICE FINAL VALUE:", repr(voice))
+    
+    # 🔊 AUDIO LOGIC
     if voice == "elevenlabs":
         voice_id = get_voice_id(country, gender, region)
-
+    
         print("🎤 USING ELEVENLABS")
         print("Voice ID:", voice_id)
-
+    
         audio = generate_elevenlabs_audio(full_text, voice_id)
-
+    
         print("Audio returned:", audio is not None)
-
+    
     else:
         print("⚠️ USING STANDARD VOICE")
         audio = None
-
+    
     return jsonify({
         "sentences": sentences,
         "id": story_id,
         "audio": audio,
         "voice": voice
     })
-
-# ------------------------
-# Generate Listening News Stories
-# ------------------------
-@app.route("/generate_news")
-def generate_news():
+    
+    # ------------------------
+    # Generate Listening News Stories
+    # ------------------------
+    @app.route("/generate_news")
+    def generate_news():
     voice = request.args.get("voice", "standard")
-
-    # 🔍 DEBUG (critical)
+    
+    # 🔍 DEBUG
     print("RAW VOICE FROM REQUEST:", repr(voice))
-
+    
     # 🔧 NORMALISE
     if isinstance(voice, str):
         voice = voice.strip().lower()
     else:
         voice = "standard"
-
-    print("NORMALISED VOICE:", repr(voice))        
+    
+    print("NORMALISED VOICE:", repr(voice))
+    
     gender = request.args.get("gender")
     country = request.args.get("country")
     region = request.args.get("region")
-
+    
     print("VOICE CHECK:", voice == "elevenlabs")
-    print("VOICE RECEIVED RAW:", repr(voice))
-
-    import json
-    from openai import OpenAI
-    client = OpenAI()
-
+    print("VOICE PARAM:", voice)
+    print("GENDER:", gender, "COUNTRY:", country, "REGION:", region)
+    
     # 🔹 Prompt (BBC-style Spanish)
     prompt = """
     Create a Spanish news report for a language learner (B2-C1 level).
-
+    
     Requirements:
     - Topic: current world news (politics, economy, environment, etc.)
     - Style: like a BBC news presenter
     - Tone: formal, clear, professional
     - Length: 5–7 sentences
     - Use natural spoken Spanish
-
+    
     Return ONLY a JSON array of sentences.
     Example:
     ["Sentence 1", "Sentence 2", "Sentence 3"]
     """
-
+    
     response = client.chat.completions.create(
         model="gpt-4.1-mini",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.7
     )
-
+    
     content = response.choices[0].message.content
-
+    
+    # 🔹 Parse safely
     try:
         sentences = json.loads(content)
     except:
-        # fallback if model slightly misbehaves
         sentences = [s.strip() for s in content.split(".") if s.strip()]
-
-    # 🔹 Save to DB (IMPORTANT: include mode)
+    
+    # 🔹 Save to DB
     conn = get_db()
     cur = conn.cursor()
-
+    
     title = sentences[0][:50] if sentences else "News report"
-
+    
     cur.execute("""
         INSERT INTO stories (title, topic, level, tense, content, mode)
         VALUES (%s, %s, %s, %s, %s, %s)
         RETURNING id
     """, (
         title,
-        "news",          # topic
-        "advanced",      # level
-        "mixed",         # tense
+        "news",
+        "advanced",
+        "mixed",
         json.dumps(sentences),
-        "news"           # 🔥 THIS IS KEY
+        "news"
     ))
-
+    
     story_id = cur.fetchone()[0]
-
+    
     full_text = " ".join(sentences)
-
+    
     print("FULL TEXT:", full_text)
-
+    
     conn.commit()
     cur.close()
     conn.close()
-
+    
     print("VOICE RAW VALUE:", repr(voice))
     
+    # 🔊 AUDIO LOGIC
     if voice == "elevenlabs":
         voice_id = get_voice_id(country, gender, region)
-
+    
         print("🎤 USING ELEVENLABS")
         print("Voice ID:", voice_id)
-
+    
         audio = generate_elevenlabs_audio(full_text, voice_id)
-
+    
         print("Audio returned:", audio is not None)
-
+    
     else:
         print("⚠️ USING STANDARD VOICE")
         audio = None
-
+    
     return jsonify({
         "sentences": sentences,
         "id": story_id,
         "audio": audio,
         "voice": voice
     })
-
-# ------------------------
-# Resume Listening Stories
-# ------------------------
-@app.route("/listening_resume")
-def listening_resume():
+    
+    # ------------------------
+    # Resume Listening Stories
+    # ------------------------
+    @app.route("/listening_resume")
+    def listening_resume():
     story_id = request.args.get("id")
-
+    
     conn = get_db()
     cur = conn.cursor()
-
+    
     cur.execute("""
         SELECT content, progress_index, progress_results
         FROM stories
         WHERE id = %s
     """, (story_id,))
-
+    
     row = cur.fetchone()
-
+    
     cur.close()
     conn.close()
-
+    
     if not row:
         return "Story not found", 404
-
+    
     content, index, results = row
-
+    
     # handle JSON safely
     if isinstance(content, str):
         content = json.loads(content)
-
+    
     if isinstance(results, str):
         results = json.loads(results)
-
+    
     return render_template(
         "listening.html",
         resume_story=content,
@@ -886,11 +879,11 @@ def listening_resume():
         resume_results=results or [],
         resume_id=story_id
     )
-
-# ------------------------
-# Run app
-# ------------------------
-if __name__ == "__main__":
+    
+    # ------------------------
+    # Run app
+    # ------------------------
+    if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
-
+    
