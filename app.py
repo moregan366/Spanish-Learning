@@ -67,33 +67,27 @@ def get_voice_id(country, gender, region):
 
 def generate_elevenlabs_audio(text, voice_id):
     print("🔥 ELEVENLABS FUNCTION HIT🔥")
+    print("TEXT LENGTH:", len(text))
 
     api_key = os.getenv("ELEVENLABS_API_KEY")
-    print("API KEY EXISTS:", api_key is not None)
+    print("API KEY EXISTS:", bool(api_key))
 
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
-    print("URL:", url)
 
-    headers = {
-        "xi-api-key": api_key,
-        "Content-Type": "application/json"
-    }
-
-    data = {
+    response = requests.post(url, json={
         "text": text,
         "model_id": "eleven_multilingual_v2"
-    }
-
-    response = requests.post(url, json=data, headers=headers)
+    }, headers={
+        "xi-api-key": api_key,
+        "Content-Type": "application/json"
+    })
 
     print("STATUS:", response.status_code)
-    print("RESPONSE TEXT:", response.text[:300])
+    print("RESPONSE:", response.text[:200])
 
     if response.status_code != 200:
-        print("❌ ELEVENLABS FAILED")
         return None
 
-    print("✅ ELEVENLABS SUCCESS")
     return base64.b64encode(response.content).decode("utf-8")
 
 from openai import OpenAI
@@ -672,6 +666,8 @@ Return as JSON list like:
 
     full_text = " ".join(sentences)
 
+    print("FULL TEXT:", full_text)
+
     conn.commit()
     cur.close()
     conn.close()
@@ -767,6 +763,8 @@ def generate_news():
     story_id = cur.fetchone()[0]
 
     full_text = " ".join(sentences)
+
+    print("FULL TEXT:", full_text)
 
     conn.commit()
     cur.close()
