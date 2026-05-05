@@ -97,8 +97,7 @@ def generate_elevenlabs_audio(text, voice_id):
         return base64.b64encode(response.content).decode("utf-8")
 
     except Exception as e:
-        print("❌ EXCEPTION:", str(e))
-        return None
+        return jsonify({"error": str(e)})
 
 from openai import OpenAI
 
@@ -601,6 +600,7 @@ def save_progress(id):
 # ------------------------
 @app.route("/generate_listening")
 def generate_listening():
+    print("LISTENING HIT")
     voice = request.args.get("voice", "standard")
 
     # 🔍 DEBUG
@@ -719,6 +719,7 @@ def generate_listening():
 # ------------------------
 @app.route("/generate_news")
 def generate_news():
+    print("NEWS HIT")
     voice = request.args.get("voice", "standard")
 
     # 🔍 DEBUG
