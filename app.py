@@ -70,7 +70,7 @@ def generate_elevenlabs_audio(text, voice_id):
 
     if not api_key:
         print("❌ ERROR: ELEVENLABS_API_KEY is missing")
-    return None
+        return None
 
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
 
