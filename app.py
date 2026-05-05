@@ -556,20 +556,20 @@ def listening():
 @app.route("/delete_story/<int:id>", methods=["DELETE"])
 def delete_story(id):
     try:
-    conn = get_db()
-    cur = conn.cursor()
+        conn = get_db()
+        cur = conn.cursor()
 
-    cur.execute("DELETE FROM stories WHERE id = %s", (id,))
-    conn.commit()
+        cur.execute("DELETE FROM stories WHERE id = %s", (id,))
+        conn.commit()
 
-    cur.close()
-    conn.close()
+        cur.close()
+        conn.close()
 
-    return jsonify({"status": "deleted"})
+        return jsonify({"status": "deleted"})
 
-    except Exception as e:
-    print("ERROR deleting story:", e)
-    return jsonify({"error": str(e)}), 500
+        except Exception as e:
+        print("ERROR deleting story:", e)
+        return jsonify({"error": str(e)}), 500
 
 # ------------------------
 # Save Progress
