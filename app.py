@@ -623,7 +623,6 @@ def save_progress(id):
 # ------------------------
 @app.route("/generate_listening")
 def generate_listening():
-
     voice = request.args.get("voice", "standard")
 
     # 🔍 DEBUG (critical)
@@ -635,8 +634,7 @@ def generate_listening():
     else:
         voice = "standard"
 
-        print("NORMALISED VOICE:", repr(voice))
-
+    print("NORMALISED VOICE:", repr(voice))  
     gender = request.args.get("gender")
     country = request.args.get("country")
     region = request.args.get("region")
@@ -745,17 +743,16 @@ Return as JSON list like:
 def generate_news():
     voice = request.args.get("voice", "standard")
 
-        # 🔍 DEBUG (critical)
-        print("RAW VOICE FROM REQUEST:", repr(voice))
+    # 🔍 DEBUG (critical)
+    print("RAW VOICE FROM REQUEST:", repr(voice))
 
-        # 🔧 NORMALISE
-        if isinstance(voice, str):
-            voice = voice.strip().lower()
-        else:
-            voice = "standard"
+    # 🔧 NORMALISE
+    if isinstance(voice, str):
+        voice = voice.strip().lower()
+    else:
+        voice = "standard"
 
-        print("NORMALISED VOICE:", repr(voice))
-        
+    print("NORMALISED VOICE:", repr(voice))        
     gender = request.args.get("gender")
     country = request.args.get("country")
     region = request.args.get("region")
