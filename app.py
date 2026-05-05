@@ -361,7 +361,7 @@ def get_stories():
     if isinstance(content, str):
         try:
             content = json.loads(content)
-    except:
+        except:
             content = []  # fallback instead of crashing
 
     # ✅ Handle progress_results safely
