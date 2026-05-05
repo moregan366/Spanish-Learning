@@ -437,25 +437,25 @@ def check_writing():
         response = client.chat.completions.create(
         model="gpt-4.1-mini",
         messages=[{"role": "user", "content": prompt}]
-    )
+        )
 
         result = response.choices[0].message.content.strip()
 
-    if result.startswith("CORRECT"):
-    return jsonify({"correct": True})
-    else:
-        feedback = result.replace("INCORRECT:", "").strip()
-        return jsonify({
-        "correct": False,
-        "feedback": feedback
-    })
+        if result.startswith("CORRECT"):
+            return jsonify({"correct": True})
+        else:
+            feedback = result.replace("INCORRECT:", "").strip()
+            return jsonify({
+                "correct": False,
+                "feedback": feedback
+        })
 
     except Exception as e:
         print("ERROR in check_writing:", e)
-    return jsonify({
-        "correct": False,
-        "feedback": "Error checking answer. Try again."
-    })
+        return jsonify({
+            "correct": False,
+            "feedback": "Error checking answer. Try again."
+        })
 
 # ------------------------
 # Complete Story
