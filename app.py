@@ -434,9 +434,9 @@ def check_writing():
     """
 
     try:
-    response = client.chat.completions.create(
-    model="gpt-4.1-mini",
-    messages=[{"role": "user", "content": prompt}]
+        response = client.chat.completions.create(
+        model="gpt-4.1-mini",
+        messages=[{"role": "user", "content": prompt}]
     )
 
     result = response.choices[0].message.content.strip()
@@ -451,10 +451,10 @@ def check_writing():
     })
 
     except Exception as e:
-    print("ERROR in check_writing:", e)
+        print("ERROR in check_writing:", e)
     return jsonify({
-    "correct": False,
-    "feedback": "Error checking answer. Try again."
+        "correct": False,
+        "feedback": "Error checking answer. Try again."
     })
 
 # ------------------------
